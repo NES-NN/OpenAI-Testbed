@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 LABEL maintainer="Joshua Beemster <joshua.a.beemster@gmail.com>"
 
 # 1. Installing python2, python3 and dependencies
