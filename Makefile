@@ -17,7 +17,7 @@ container_name = openai_smb
 #  FUNCTIONS
 # -----------------------------------------------------------------------------
 
-up:
+up: down
 	docker run \
 		--name $(container_name) \
 		-e VNC_SERVER_PASSWORD=password \
@@ -26,7 +26,7 @@ up:
 		-d $(container_tag)
 
 down:
-	docker rm -f $(container_name)
+	bash -c "trap 'docker rm -f $(container_name)' EXIT"
 
 # -----------------------------------------------------------------------------
 #  CLEANUP
