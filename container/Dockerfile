@@ -5,7 +5,7 @@ LABEL maintainer="Joshua Beemster <joshua.a.beemster@gmail.com>"
 RUN apt-get update && apt install -y --no-install-recommends python3-pip python-pip python3 python git unzip fceux nano
 
 # 1.1 Uppgrade pip and pip3
-RUN pip3 install --upgrade pip setuptools && pip install --upgrade pip
+RUN apt install -y python3-distutils && pip3 install --upgrade pip setuptools && pip install --upgrade pip
 
 # 2. Install OpenAI Gym dependencies
 RUN pip3 install gym-pull && pip3 install gym==0.8.2
