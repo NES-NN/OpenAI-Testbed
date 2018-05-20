@@ -13,6 +13,9 @@ RUN pip3 install gym-pull && pip3 install gym==0.8.2
 # 2.1 Install OpenAI-Neat dependencies
 RUN pip3 install scipy neat-python==0.8 argparse
 
+# 2.2 Install Super Mario environment bundle for OpenAI Gym
+RUN pip3 install ppaquette-gym-super-mario
+
 # 3. installing X and xvfb so we can SEE the action using a remote desktop access (VNC)
 # and because this is the last apt, let's clean up after ourselves
 RUN apt-get install -y x11vnc xvfb fluxbox wmctrl && \
