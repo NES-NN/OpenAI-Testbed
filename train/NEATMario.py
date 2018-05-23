@@ -24,27 +24,20 @@ parser.add_argument('--generations', type=int, default=50,
                     help="The number of generations to evolve the network")
 parser.add_argument('--checkpoint', type=str,
                     help="Uses a checkpoint to start the simulation")
-parser.add_argument('--num-cores', dest="numCores", type=int, default=4,
+parser.add_argument('--num-cores', dest="numCores", type=int, default=8,
                     help="The number cores on your computer for parallel execution")
 args = parser.parse_args()
 
-
 def simulate_species(net, env, episodes=1, steps=5000, render=False):
+    observation = env.reset()
     fitnesses = []
+
     for runs in range(episodes):
-        inputs = my_env.reset()
-
-        flat_inputs = [item for sublist in inputs for item in sublist]
-        print(inputs)
-        print(flat_inputs)
-
+        action = env.action_space.sample()        
         cum_reward = 0.0
+
         for j in range(steps):
-            print(my_env.screen)
-            outputs = net.serial_activate(flat_inputs)
-            print(outputs)
-            action = [0, 0, 0, 1, 0, 0]
-            inputs, reward, done, _ = env.step(action)
+            observation, reward, done, _ = env.step(action)
             if render:
                 env.render()
             if done:
