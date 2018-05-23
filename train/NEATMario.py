@@ -24,29 +24,31 @@ parser.add_argument('--generations', type=int, default=10,
                     help="The number of generations to evolve the network")
 parser.add_argument('--checkpoint', type=str,
                     help="Uses a checkpoint to start the simulation")
-parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
+parser.add_argument('--num-cores', dest="numCores", type=int, default=4,
                     help="The number cores on your computer for parallel execution")
 args = parser.parse_args()
 
 def simulate_species(net, env, episodes=1, steps=1000, render=False):
-    observation = env.reset()
     fitnesses = []
 
     for runs in range(episodes):     
         cum_reward = 0.0
+        observation = env.reset()
 
-        for j in range(steps):
-            # Random actor
-            #action = env.action_space.sample()
+        previousDistance = 40
+        stuck = 0
 
-            # NEAT actor
-            flat_inputs = [item for sublist in observation for item in sublist]
-            action = net.serial_activate(flat_inputs)
-
-            observation, reward, done, _ = env.step(action)
-            if done:
-                break
+        while True:
+            outputs = net.serial_activate(observation.flatten())
+            observation, reward, done, info = env.step(clean_outputs(outputs))
             cum_reward += reward
+
+            if info['distance'] <= previousDistance: 
+                stuck += 1
+            previousDistance = info['distance']
+        
+            if done or stuck > 100:
+                break
 
         fitnesses.append(cum_reward)
 
@@ -54,6 +56,11 @@ def simulate_species(net, env, episodes=1, steps=1000, render=False):
     print("Species fitness: %s" % str(fitness))
     return fitness
 
+def clean_outputs(outputs):
+    return [1 if sigmoid(b) > 0.5 else 0 for b in outputs]
+
+def sigmoid(x):
+    return (1 / (1 + np.exp(-x)))
 
 def worker_evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
@@ -83,13 +90,13 @@ def train_network(env):
         pop.load_checkpoint(args.checkpoint)
 
     # Start simulation
-    pop.run(eval_fitness, args.generations)
+    #pop.run(eval_fitness, args.generations)
     
-    #if args.render:
-    #    pop.run(eval_fitness, args.generations)
-    #else:
-    #    pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
-    #    pop.run(pe.evaluate, args.generations)
+    if args.render:
+        pop.run(eval_fitness, args.generations)
+    else:
+        pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
+        pop.run(pe.evaluate, args.generations)
 
     pop.save_checkpoint("checkpoint")
 
