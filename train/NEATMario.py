@@ -15,31 +15,35 @@ game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
 
 
 parser = argparse.ArgumentParser(description='OpenAI Gym Solver')
-parser.add_argument('--max-steps', dest='max_steps', type=int, default=1000,
+parser.add_argument('--max-steps', dest='max_steps', type=int, default=2000,
                     help='The max number of steps to take per genome (timeout)')
 parser.add_argument('--episodes', type=int, default=1,
                     help="The number of times to run a single genome. This takes the fitness score from the worst run")
 parser.add_argument('--render', action='store_true')
-parser.add_argument('--generations', type=int, default=50,
+parser.add_argument('--generations', type=int, default=10,
                     help="The number of generations to evolve the network")
 parser.add_argument('--checkpoint', type=str,
                     help="Uses a checkpoint to start the simulation")
-parser.add_argument('--num-cores', dest="numCores", type=int, default=8,
+parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                     help="The number cores on your computer for parallel execution")
 args = parser.parse_args()
 
-def simulate_species(net, env, episodes=1, steps=5000, render=False):
+def simulate_species(net, env, episodes=1, steps=1000, render=False):
     observation = env.reset()
     fitnesses = []
 
-    for runs in range(episodes):
-        action = env.action_space.sample()        
+    for runs in range(episodes):     
         cum_reward = 0.0
 
         for j in range(steps):
+            # Random actor
+            #action = env.action_space.sample()
+
+            # NEAT actor
+            flat_inputs = [item for sublist in observation for item in sublist]
+            action = net.serial_activate(flat_inputs)
+
             observation, reward, done, _ = env.step(action)
-            if render:
-                env.render()
             if done:
                 break
             cum_reward += reward
@@ -70,6 +74,8 @@ def train_network(env):
     # Simulation
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'gym_config')
+
+    # NEAT
     pop = population.Population(config_path)
 
     # Load checkpoint
@@ -77,11 +83,13 @@ def train_network(env):
         pop.load_checkpoint(args.checkpoint)
 
     # Start simulation
-    if args.render:
-        pop.run(eval_fitness, args.generations)
-    else:
-        pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
-        pop.run(pe.evaluate, args.generations)
+    pop.run(eval_fitness, args.generations)
+    
+    #if args.render:
+    #    pop.run(eval_fitness, args.generations)
+    #else:
+    #    pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
+    #    pop.run(pe.evaluate, args.generations)
 
     pop.save_checkpoint("checkpoint")
 
@@ -103,7 +111,7 @@ def train_network(env):
     print('\nBest genome:\n{!s}'.format(winner))
     print('\nOutput:')
 
-    raw_input("Press Enter to run the best genome...")
+    input("Press Enter to run the best genome...")
     winner_net = nn.create_feed_forward_phenotype(winner)
     for i in range(100):
         simulate_species(winner_net, env, 1, args.max_steps, render=True)
