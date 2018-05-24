@@ -16,7 +16,7 @@ parser.add_argument('--episodes', type=int, default=1,
                     help="The number of times to run a single genome. This takes the fitness score from the worst run")
 parser.add_argument('--generations', type=int, default=10,
                     help="The number of generations to evolve the network")
-parser.add_argument('--checkpoint', type=str,
+parser.add_argument('--save-file', dest="saveFile", type=str, default="network.bin",
                     help="Uses a checkpoint to start the simulation")
 parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                     help="The number cores on your computer for parallel execution")
@@ -77,15 +77,15 @@ def train_network(env):
     # NEAT
     pop = population.Population(config_path)
 
-    # Load checkpoint
-    if args.checkpoint:
-        pop.load_checkpoint(args.checkpoint)
+    # Load Save File
+    if args.saveFile:
+        pop.load_checkpoint(args.saveFile)
 
     # Start simulation
     pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
     pop.run(pe.evaluate, args.generations)
 
-    pop.save_checkpoint("checkpoint")
+    pop.save_checkpoint(args.saveFile)
 
     # Log statistics.
     statistics.save_stats(pop.statistics)
