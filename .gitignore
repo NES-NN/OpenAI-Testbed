@@ -1,2 +1,17 @@
 build/*
 train/snapshots/*
+*.pyc
+
+train/\.vscode/
+
+train/NEAT/checkpoint
+
+train/NEAT/core
+
+train/NEAT/fitness_history\.csv
+
+train/NEAT/speciation\.csv
+
+train/NEAT/species_fitness\.csv
+
+train/NEAT/winner\.pkl

@@ -5,52 +5,44 @@ import os
 import numpy as np
 from neat import nn, population, statistics, parallel
 
-
 ### User Params ###
-
 # The name of the game to solve
 game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
 
 ### End User Params ###
 
-
-parser = argparse.ArgumentParser(description='OpenAI Gym Solver')
-parser.add_argument('--max-steps', dest='max_steps', type=int, default=2000,
-                    help='The max number of steps to take per genome (timeout)')
+parser = argparse.ArgumentParser(description='Mario NEAT Trainer')
 parser.add_argument('--episodes', type=int, default=1,
                     help="The number of times to run a single genome. This takes the fitness score from the worst run")
-parser.add_argument('--render', action='store_true')
 parser.add_argument('--generations', type=int, default=10,
                     help="The number of generations to evolve the network")
 parser.add_argument('--checkpoint', type=str,
                     help="Uses a checkpoint to start the simulation")
-parser.add_argument('--num-cores', dest="numCores", type=int, default=4,
+parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                     help="The number cores on your computer for parallel execution")
 args = parser.parse_args()
 
-def simulate_species(net, env, episodes=1, steps=1000, render=False):
+def simulate_species(net, env, episodes=1):
     fitnesses = []
 
     for runs in range(episodes):     
-        cum_reward = 0.0
         observation = env.reset()
+        done = stuck = accumulated_reward = 0.0
 
-        previousDistance = 40
-        stuck = 0
+        while not done and stuck < 150:
+            # Get move from NN
+            outputs = clean_outputs(net.serial_activate(observation.flatten()))
 
-        while True:
-            outputs = net.serial_activate(observation.flatten())
-            observation, reward, done, info = env.step(clean_outputs(outputs))
-            cum_reward += reward
+            # Make move
+            observation, reward, done, info = env.step(outputs)
+            
+            # Adds distance traveled left since last move
+            accumulated_reward += reward
 
-            if info['distance'] <= previousDistance: 
-                stuck += 1
-            previousDistance = info['distance']
-        
-            if done or stuck > 100:
-                break
-
-        fitnesses.append(cum_reward)
+            # Check if Mario is progressing in level
+            stuck += 1 if reward <= 0 else 0
+            
+        fitnesses.append(accumulated_reward)
 
     fitness = np.array(fitnesses).mean()
     print("Species fitness: %s" % str(fitness))
@@ -64,14 +56,14 @@ def sigmoid(x):
 
 def worker_evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
-    return simulate_species(net, my_env, args.episodes, args.max_steps, render=args.render)
+    return simulate_species(net, my_env, args.episodes)
 
 
 def train_network(env):
 
     def evaluate_genome(g):
         net = nn.create_feed_forward_phenotype(g)
-        return simulate_species(net, env, args.episodes, args.max_steps, render=args.render)
+        return simulate_species(net, env, args.episodes)
 
     def eval_fitness(genomes):
         for g in genomes:
@@ -90,13 +82,8 @@ def train_network(env):
         pop.load_checkpoint(args.checkpoint)
 
     # Start simulation
-    #pop.run(eval_fitness, args.generations)
-    
-    if args.render:
-        pop.run(eval_fitness, args.generations)
-    else:
-        pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
-        pop.run(pe.evaluate, args.generations)
+    pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
+    pop.run(pe.evaluate, args.generations)
 
     pop.save_checkpoint("checkpoint")
 
@@ -115,18 +102,5 @@ def train_network(env):
     with open('winner.pkl', 'wb') as output:
        pickle.dump(winner, output, 1)
 
-    print('\nBest genome:\n{!s}'.format(winner))
-    print('\nOutput:')
-
-    input("Press Enter to run the best genome...")
-    winner_net = nn.create_feed_forward_phenotype(winner)
-    for i in range(100):
-        simulate_species(winner_net, env, 1, args.max_steps, render=True)
-
 my_env = gym.make(game_name)
-print("Input Nodes: %s" % str(len(my_env.observation_space.high)))
-#print("Output Nodes: %s" % str(my_env.action_space.n))
-
-print(type(my_env))
-
 train_network(my_env)
