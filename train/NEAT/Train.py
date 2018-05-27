@@ -16,10 +16,14 @@ parser.add_argument('--episodes', type=int, default=1,
                     help="The number of times to run a single genome. This takes the fitness score from the worst run")
 parser.add_argument('--generations', type=int, default=10,
                     help="The number of generations to evolve the network")
-parser.add_argument('--save-file', dest="saveFile", type=str, default="network.bin",
+parser.add_argument('--save-file', dest="saveFile", type=str, default="network",
                     help="Uses a checkpoint to start the simulation")
+parser.add_argument('--playBest', dest="playBest", type=str, default="network",
+                    help="Play the best of a trained network")
 parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                     help="The number cores on your computer for parallel execution")
+parser.add_argument('-v',
+                    help="Shows fitness for each species")
 args = parser.parse_args()
 
 def simulate_species(net, env, episodes=1):
@@ -45,7 +49,10 @@ def simulate_species(net, env, episodes=1):
         fitnesses.append(accumulated_reward)
 
     fitness = np.array(fitnesses).mean()
-    print("Species fitness: %s" % str(fitness))
+    
+    if args.v:
+        print("Species fitness: %s" % str(fitness))
+
     return fitness
 
 def clean_outputs(outputs):
@@ -78,29 +85,38 @@ def train_network(env):
     pop = population.Population(config_path)
 
     # Load Save File
-    if args.saveFile:
+    if args.saveFile and os.path.exists(args.saveFile):
         pop.load_checkpoint(args.saveFile)
 
-    # Start simulation
-    pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
-    pop.run(pe.evaluate, args.generations)
+    if args.playBest is not None:
+        # Start simulation
+        pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
+        pop.run(pe.evaluate, args.generations)
+        
+        pop.save_checkpoint(args.saveFile)
 
-    pop.save_checkpoint(args.saveFile)
+        # Log statistics.
+        statistics.save_stats(pop.statistics)
+        statistics.save_species_count(pop.statistics)
+        statistics.save_species_fitness(pop.statistics)
 
-    # Log statistics.
-    statistics.save_stats(pop.statistics)
-    statistics.save_species_count(pop.statistics)
-    statistics.save_species_fitness(pop.statistics)
+        print('Number of evaluations: {0}'.format(pop.total_evaluations))
 
-    print('Number of evaluations: {0}'.format(pop.total_evaluations))
+        # Show output of the most fit genome against training data.
+        winner = pop.statistics.best_genome()
 
-    # Show output of the most fit genome against training data.
-    winner = pop.statistics.best_genome()
+        # Save best network
+        import pickle
+        with open(args.saveFile + '.pkl', 'wb') as output:
+            pickle.dump(winner, output, 1)
+    else: 
+        # Save best network
+        import pickle
+        winner = pickle.load( open(args.playBest + '.pkl', 'rb') )
 
-    # Save best network
-    import pickle
-    with open('winner.pkl', 'wb') as output:
-       pickle.dump(winner, output, 1)
+        winner_net = nn.create_feed_forward_phenotype(winner)
+
+        simulate_species(winner_net, env, 1)
 
 my_env = gym.make(game_name)
 train_network(my_env)
