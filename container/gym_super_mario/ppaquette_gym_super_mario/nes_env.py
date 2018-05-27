@@ -45,7 +45,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.rom_path = ''
         self.screen_height = 224
         self.screen_width = 256
-        self.action_space = spaces.MultiDiscrete([[0, 1]] * NUM_ACTIONS)
+        self.action_space = spaces.MultiDiscrete([1] * NUM_ACTIONS)
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.screen_height, self.screen_width, 3))
         self.launch_vars = {}
         self.cmd_args = ['--xscale 2', '--yscale 2', '-f 0']
@@ -264,7 +264,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Overridable - Returns the other variables
         return self.info
 
-    def _step(self, action):
+    def step(self, action):
         if 0 == self.is_initialized:
             return self._get_state(), 0, self._get_is_finished(), {}
 
@@ -340,7 +340,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         info = self._get_info()
         return state, reward, is_finished, info
 
-    def _reset(self):
+    def reset(self):
         if 1 == self.is_initialized:
             self.close()
         self.last_frame = 0
@@ -637,7 +637,7 @@ class MetaNesEnv(NesEnv):
                 averages[i] = round(level_average, 4)
         return averages
 
-    def _reset(self):
+    def reset(self):
         # Reset is called on first step() after level is finished
         # or when change_level() is called. Returning if neither have been called to
         # avoid resetting the level twice
@@ -656,12 +656,12 @@ class MetaNesEnv(NesEnv):
         self.screen = np.zeros(shape=(self.screen_height, self.screen_width, 3), dtype=np.uint8)
         return self._get_state()
 
-    def _step(self, action):
+    def step(self, action):
         # Changing level
         if self.find_new_level:
             self.change_level()
 
-        obs, step_reward, is_finished, info = NesEnv._step(self, action)
+        obs, step_reward, is_finished, info = NesEnv.step(self, action)
         reward, self.total_reward = self._calculate_reward(self._get_episode_reward(), self.total_reward)
         # First step() after new episode returns the entire total reward
         # because stats_recorder resets the episode score to 0 after reset() is called
