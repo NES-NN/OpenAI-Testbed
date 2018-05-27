@@ -324,13 +324,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                     # Game stuck, returning
                     # Likely caused by fceux incoming pipe not working
                     logger.warn('Closing episode (appears to be stuck). See documentation for how to handle this issue.')
-                    if self.subprocess is not None:
-                        # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
-                        try:
-                            os.kill(self.subprocess.pid + 1, signal.SIGKILL)
-                        except OSError:
-                            pass
-                        self.subprocess = None
+                    self._terminate_fceux()
                     return self._get_state(), 0, True, {'ignore': True}
 
         # Getting results
@@ -341,6 +335,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         return state, reward, is_finished, info
 
     def reset(self):
+        self._terminate_fceux()
+
         if 1 == self.is_initialized:
             self.close()
         self.last_frame = 0
@@ -381,13 +377,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.is_exiting = 1
         self._write_to_pipe('exit')
         sleep(0.05)
-        if self.subprocess is not None:
-            # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
-            try:
-                os.kill(self.subprocess.pid + 1, signal.SIGKILL)
-            except OSError:
-                pass
-            self.subprocess = None
+        self._terminate_fceux()
         sleep(0.001)
         self._close_pipes()
         self.last_frame = 0
@@ -397,6 +387,15 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.screen = np.zeros(shape=(self.screen_height, self.screen_width, 3), dtype=np.uint8)
         self._reset_info_vars()
         self.is_initialized = 0
+
+    def _terminate_fceux(self):
+        if self.subprocess is not None:
+            # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
+            try:
+                os.kill(self.subprocess.pid + 1, signal.SIGKILL)
+            except OSError as e:
+                pass
+            self.subprocess = None
 
     def _seed(self, seed=None):
         self.curr_seed = seeding.hash_seed(seed) % 256
