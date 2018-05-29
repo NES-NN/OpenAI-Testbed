@@ -54,7 +54,7 @@ def master_extract_parent(allChildrenResults, iteration):
     
 
 env = gym.make('ppaquette/SuperMarioBros-1-1-v0')
-experiment = 0;
+experiment = 0
 
 #loop experiments forever
 while True: 
@@ -69,7 +69,7 @@ while True:
         lastDistance = 0;
         strike = 0;
         while not done:
-            action = env.action_space.sample()  # choose random action
+            action =  np.random.randint(2,size=env.action_space.shape[0])  # choose random action
             observation, reward, done, info = env.step(action)  # feedback from environment    
             t += 1
             
