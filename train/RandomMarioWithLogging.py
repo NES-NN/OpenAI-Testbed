@@ -23,7 +23,7 @@ def master_extract_cloud_ga(allChildrenResults, iteration):
             #np is NumPy
             #looks like VINE wants floating point values.
             #2 values + fitness (in our case distance is fitness)
-            row = np.hstack(("{:.6f}".format(curr_task_results.get('score')),"{:.8f}".format(400 -curr_task_results.get('time'),"{:.6f}".format(curr_task_results.get('distance')))))
+            row = np.hstack(("{:.6f}".format(curr_task_results.get('score')),"{:.8f}".format(400 -curr_task_results.get('time')),"{:.6f}".format(curr_task_results.get('distance'))))
             writer.writerow(row)
     print('Created snapshot:' + filename)
 
@@ -47,7 +47,7 @@ def master_extract_parent(allChildrenResults, iteration):
             
             #np is NumPy
             #looks like VINE wants floating point values.
-            row = np.hstack(("{:.6f}".format(curr_task_results.get('distance')),"{:.6f}".format(curr_task_results.get('score')),"{:.8f}".format(400 -curr_task_results.get('time'))))
+            row = np.hstack(("{:.6f}".format(curr_task_results.get('score')),"{:.8f}".format(400 -curr_task_results.get('time')),"{:.6f}".format(curr_task_results.get('distance'))))            
             writer.writerow(row)
             break #just need the first
     print('Created parent snapshot:' + filename)
