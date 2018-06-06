@@ -5,9 +5,6 @@ import os
 import numpy as np
 from neat import nn, population, statistics, parallel
 
-#genomeTrainingInfos
-genomeInfos = {}
-
 #save offspring stats
 #ugly name to match VINE examples for now
 def master_extract_cloud_ga(population):
@@ -24,9 +21,12 @@ def master_extract_cloud_ga(population):
         for currentSpeciesResults in population.species:
             for member in currentSpeciesResults.members:                
                 #if (result == "distance"):
-                # {'level': 0, 'distance': 6, 'score': 0, 'coins': 0, 'time': 388, 'player_status': 0, 'life': 3}                
-                row = np.hstack(("{:.6f}".format(genomeInfos[member].get('score')),"{:.8f}".format(400 -genomeInfos[member].get('time')),"{:.6f}".format(member.fitness)))
-                writer.writerow(row)
+                # {'level': 0, 'distance': 6, 'score': 0, 'coins': 0, 'time': 388, 'player_status': 0, 'life': 3}    
+                if member in genomeInfos:         
+                    row = np.hstack(("{:.6f}".format(genomeInfos[member].get('score')),"{:.8f}".format(400 -genomeInfos[member].get('time')),"{:.6f}".format(member.fitness)))
+                    writer.writerow(row)
+                else:
+                    print('ERROR: could not find: genome' + member.ID)                
     print('Created snapshot:' + filename)
 
 #save parent stats
@@ -55,6 +55,9 @@ def master_extract_parent(parentGenome, generationNumber):
 # The name of the game to solve
 game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
 
+#list of genome, info pairs
+genomeInfos = {}
+
 ### End User Params ###
 
 parser = argparse.ArgumentParser(description='Mario NEAT Trainer')
@@ -77,7 +80,10 @@ args = parser.parse_args()
 def simulate_species(net, env, episodes=1):
     fitnesses = []
 
-    for runs in range(episodes):     
+    for runs in range(episodes):  
+        if episodes > 1:
+            print('Running episode: '+ str(runs))   
+            
         observation = env.reset()
         done = stuck = accumulated_reward = 0.0
 
@@ -112,14 +118,11 @@ def sigmoid(x):
 def worker_evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
     
-    fitness, info = simulate_species(net, my_env, args.episodes)    
+    fitness = simulate_species(net, my_env, args.episodes)    
     return fitness
 
 
 def train_network(env):
-
-    #list of genome, info pairs
-    
 
     def evaluate_genome(g):
         net = nn.create_feed_forward_phenotype(g)
@@ -131,6 +134,27 @@ def train_network(env):
             fitness, info = evaluate_genome(g)    
             genomeInfos[g] = info
             g.fitness = fitness
+
+        #log results
+        if args.loggingFormat == "vine": 
+            #For now just pick first as best is not working (or right anyway) 
+            #genWinner = pop.statistics.best_genome()
+            genWinner = genomes[0]
+            #VINE log population
+            master_extract_cloud_ga(pop)
+
+            #genWinner is a copy, not the original
+            #need to find the original
+            parentGenome = None
+            for genomes in genomeInfos.keys():
+                if genomes.ID == genWinner.ID:
+                    parentGenome = genomes
+        
+            if (parentGenome is not None):
+            #VINE log best as parent
+                master_extract_parent(parentGenome, int(pop.generation))
+            else:
+                print('Could not find genome:' + genWinner.ID)
 
     # Simulation
     local_dir = os.path.dirname(__file__)
@@ -145,9 +169,6 @@ def train_network(env):
 
     if args.playBest is not None:
         # Start simulation
-
-        # For debugging I've reduced the generations to 1
-        args.generations = 1
 
         # For VINE stop running in parallel
         if args.loggingFormat == "vine": 
@@ -169,22 +190,7 @@ def train_network(env):
         # Show output of the most fit genome against training data.
         winner = pop.statistics.best_genome()
         
-        if args.loggingFormat == "vine": 
-            #VINE log population
-            master_extract_cloud_ga(pop)
-
-            #winner is a copy, not the original
-            #need to find the original
-            parentGenome = None
-            for genomes in genomeInfos.keys():
-                if genomes.ID == winner.ID:
-                    parentGenome = genomes
-        
-            if (parentGenome is not None):
-            #VINE log best as parent
-                master_extract_parent(parentGenome, int(pop.generation))
-            else:
-                print('Could not find genome:' + winner.ID)
+       
                 
 
         # Save best network
