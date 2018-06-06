@@ -5,6 +5,52 @@ import os
 import numpy as np
 from neat import nn, population, statistics, parallel
 
+#genomeTrainingInfos
+genomeInfos = {}
+
+#save offspring stats
+#ugly name to match VINE examples for now
+def master_extract_cloud_ga(population):
+    import csv
+    import os
+
+    path = "snapshots/snapshot_gen_{:04}/".format(int(population.generation))
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    filename = "snapshot_offspring_{:04}.dat".format(int(population.generation))
+    with open(os.path.join(path, filename), 'w+') as file:        
+        writer = csv.writer(file, delimiter=' ')
+        for currentSpeciesResults in population.species:
+            for member in currentSpeciesResults.members:                
+                #if (result == "distance"):
+                # {'level': 0, 'distance': 6, 'score': 0, 'coins': 0, 'time': 388, 'player_status': 0, 'life': 3}                
+                row = np.hstack(("{:.6f}".format(genomeInfos[member].get('score')),"{:.8f}".format(400 -genomeInfos[member].get('time')),"{:.6f}".format(member.fitness)))
+                writer.writerow(row)
+    print('Created snapshot:' + filename)
+
+#save parent stats
+#same ugly name issue for now
+def master_extract_parent(parentGenome, generationNumber):
+    import os
+    import csv
+    
+    #We will set the winner genome of the generation as the next parent
+    path = "snapshots/snapshot_gen_{:04}/".format(generationNumber +1)
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    filename = "snapshot_parent_{:04}.dat".format(generationNumber +1)    
+    with open(os.path.join(path, filename), 'w+') as file:
+        writer = csv.writer(file, delimiter=' ')
+      
+        #np is NumPy
+        #looks like VINE wants floating point values.        
+        row = np.hstack(("{:.6f}".format(genomeInfos[parentGenome].get('score')),"{:.8f}".format(400 -genomeInfos[parentGenome].get('time')),"{:.6f}".format(parentGenome.fitness)))
+        writer.writerow(row)
+       
+    print('Created parent snapshot:' + filename)
+
 ### User Params ###
 # The name of the game to solve
 game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
@@ -24,6 +70,8 @@ parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                     help="The number cores on your computer for parallel execution")
 parser.add_argument('-v',
                     help="Shows fitness for each species")
+parser.add_argument('--logging-format', dest="loggingFormat", type=str, default="vine",
+                    help="Log out fitness of patent and children generations for VINE")
 args = parser.parse_args()
 
 def simulate_species(net, env, episodes=1):
@@ -53,7 +101,7 @@ def simulate_species(net, env, episodes=1):
     if args.v:
         print("Species fitness: %s" % str(fitness))
 
-    return fitness
+    return fitness, info
 
 def clean_outputs(outputs):
     return [1 if sigmoid(b) > 0.5 else 0 for b in outputs]
@@ -63,18 +111,25 @@ def sigmoid(x):
 
 def worker_evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
-    return simulate_species(net, my_env, args.episodes)
+    
+    fitness, info = simulate_species(net, my_env, args.episodes)    
+    return fitness
 
 
 def train_network(env):
+
+    #list of genome, info pairs
+    
 
     def evaluate_genome(g):
         net = nn.create_feed_forward_phenotype(g)
         return simulate_species(net, env, args.episodes)
 
+
     def eval_fitness(genomes):
-        for g in genomes:
-            fitness = evaluate_genome(g)
+        for g in genomes:            
+            fitness, info = evaluate_genome(g)    
+            genomeInfos[g] = info
             g.fitness = fitness
 
     # Simulation
@@ -90,9 +145,18 @@ def train_network(env):
 
     if args.playBest is not None:
         # Start simulation
-        pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)
-        pop.run(pe.evaluate, args.generations)
+
+        # For debugging I've reduced the generations to 1
+        args.generations = 1
+
+        # For VINE stop running in parallel
+        if args.loggingFormat == "vine": 
+            pop.run(eval_fitness, args.generations)
         
+        else:
+            pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)       
+            pop.run(pe.evaluate, args.generations) 
+       
         pop.save_checkpoint(args.saveFile)
 
         # Log statistics.
@@ -104,6 +168,24 @@ def train_network(env):
 
         # Show output of the most fit genome against training data.
         winner = pop.statistics.best_genome()
+        
+        if args.loggingFormat == "vine": 
+            #VINE log population
+            master_extract_cloud_ga(pop)
+
+            #winner is a copy, not the original
+            #need to find the original
+            parentGenome = None
+            for genomes in genomeInfos.keys():
+                if genomes.ID == winner.ID:
+                    parentGenome = genomes
+        
+            if (parentGenome is not None):
+            #VINE log best as parent
+                master_extract_parent(parentGenome, int(pop.generation))
+            else:
+                print('Could not find genome:' + winner.ID)
+                
 
         # Save best network
         import pickle

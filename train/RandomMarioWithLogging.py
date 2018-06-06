@@ -33,7 +33,8 @@ def master_extract_parent(allChildrenResults, iteration):
     import os
     import csv
     
-    #we will take the first result and pretend it is the parent
+    #Since all runs are equivalent
+    #We will take the first result and pretend it is the parent
     path = "snapshots/snapshot_gen_{:04}/".format(int(iteration +1))
     if not os.path.exists(path):
         os.makedirs(path)
