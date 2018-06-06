@@ -5,6 +5,9 @@ LABEL maintainer="Joshua Beemster <joshua.a.beemster@gmail.com>"
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
+# 0. VINE click library wants utf-8 input
+ENV LANG=C.UTF.8
+
 # 1.2 Install tzdata
 RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
     echo "tzdata tzdata/Zones/Europe select Berlin" >> /tmp/preseed.txt; \
@@ -15,7 +18,7 @@ RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
     #apt-get install -y tzdata
 
 # 1. Installing python2, python3 and dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python-pip python3 python git unzip fceux nano python3-matplotlib tzdata
+RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python-pip python3 python git unzip fceux nano python3-matplotlib tzdata python3-tk
 
 # 1.1 Upgrade pip and pip3
 RUN apt-get install -y python3-distutils && pip3 install --upgrade pip setuptools && pip install --upgrade pip
@@ -38,8 +41,7 @@ RUN cd /opt/gym_super_mario/ && python3 setup.py install
 RUN pip3 install -U matplotlib
 RUN pip install colour
 RUN python3 -m pip install --upgrade pandas==0.22.0
-RUN mkdir /opt/deep-neuroevolution
-RUN cd /opt/deep-neuroevolution && \
+RUN cd /opt && \
         git clone https://github.com/uber-common/deep-neuroevolution.git
 
 
