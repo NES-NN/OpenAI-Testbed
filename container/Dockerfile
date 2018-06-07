@@ -38,7 +38,7 @@ COPY gym_super_mario /opt/gym_super_mario/
 RUN cd /opt/gym_super_mario/ && python3 setup.py install
 
 # 5. Install Uber VINE visualisation tool
-RUN pip3 install -U matplotlib
+RUN pip3 install -U matplotlib && pip install colour && pip3 install click 
 RUN pip install colour
 RUN python3 -m pip install --upgrade pandas==0.22.0
 RUN cd /opt && \
