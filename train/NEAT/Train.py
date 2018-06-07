@@ -23,7 +23,7 @@ def master_extract_cloud_ga(population):
                 #if (result == "distance"):
                 # {'level': 0, 'distance': 6, 'score': 0, 'coins': 0, 'time': 388, 'player_status': 0, 'life': 3}    
                 if member in genomeInfos:         
-                    row = np.hstack(("{:.6f}".format(genomeInfos[member].get('score')),"{:.8f}".format(400 -genomeInfos[member].get('time')),"{:.6f}".format(member.fitness)))
+                    row = np.hstack(("{:.6f}".format(genomeInfos[member].get('score')),"{:.8f}".format(genomeInfos[member].get('time')),"{:.6f}".format(member.fitness)))
                     writer.writerow(row)
                 else:
                     print('ERROR: could not find: genome' + member.ID)                
@@ -31,9 +31,12 @@ def master_extract_cloud_ga(population):
 
 #save parent stats
 #same ugly name issue for now
-def master_extract_parent(parentGenome, generationNumber):
+def master_extract_parent(population):
     import os
     import csv
+    from neat.math_util import mean
+
+    generationNumber = population.generation
     
     #We will set the winner genome of the generation as the next parent
     path = "snapshots/snapshot_gen_{:04}/".format(generationNumber +1)
@@ -44,9 +47,23 @@ def master_extract_parent(parentGenome, generationNumber):
     with open(os.path.join(path, filename), 'w+') as file:
         writer = csv.writer(file, delimiter=' ')
       
+        #get adverage score
+        advScore = 0
+        for genomeInfo in genomeInfos:
+            advScore += genomeInfos[genomeInfo].get('score')
+        advScore = advScore / len(genomeInfos)
+
+        #get adverage time
+        advTime = 0
+        for genomeInfo in genomeInfos:
+            advTime += genomeInfos[genomeInfo].get('time')
+        advTime = advTime / len(genomeInfos)
+
+        fit_mean = mean([c.fitness for c in genomeInfos.keys()])
+
         #np is NumPy
         #looks like VINE wants floating point values.        
-        row = np.hstack(("{:.6f}".format(genomeInfos[parentGenome].get('score')),"{:.8f}".format(400 -genomeInfos[parentGenome].get('time')),"{:.6f}".format(parentGenome.fitness)))
+        row = np.hstack(("{:.6f}".format(advScore),"{:.8f}".format(advTime),"{:.6f}".format(fit_mean)))
         writer.writerow(row)
        
     print('Created parent snapshot:' + filename)
@@ -137,24 +154,13 @@ def train_network(env):
 
         #log results
         if args.loggingFormat == "vine": 
-            #For now just pick first as best is not working (or right anyway) 
-            #genWinner = pop.statistics.best_genome()
-            genWinner = genomes[0]
+
             #VINE log population
             master_extract_cloud_ga(pop)
 
-            #genWinner is a copy, not the original
-            #need to find the original
-            parentGenome = None
-            for genomes in genomeInfos.keys():
-                if genomes.ID == genWinner.ID:
-                    parentGenome = genomes
-        
-            if (parentGenome is not None):
-            #VINE log best as parent
-                master_extract_parent(parentGenome, int(pop.generation))
-            else:
-                print('Could not find genome:' + genWinner.ID)
+            #VINE log adv. as parent
+            master_extract_parent(pop)
+            
 
     # Simulation
     local_dir = os.path.dirname(__file__)
@@ -172,6 +178,7 @@ def train_network(env):
 
         # For VINE stop running in parallel
         if args.loggingFormat == "vine": 
+            genomeInfos.clear()
             pop.run(eval_fitness, args.generations)
         
         else:
