@@ -24,9 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3-pip pyt
 RUN apt-get install -y python3-distutils && pip3 install --upgrade pip setuptools && pip install --upgrade pip
 
 
-# 2. installing X and xvfb so we can SEE the action using a remote desktop access (VNC)
+# 2. installing X, xvfb, byobu and htop so we can SEE the action using a remote desktop access (VNC) and run training headless
 # and because this is the last apt, let's clean up after ourselves
-RUN apt-get install -y x11vnc xvfb fluxbox wmctrl && \
+RUN apt-get install -y x11vnc xvfb fluxbox wmctrl byobu htop  && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
 
