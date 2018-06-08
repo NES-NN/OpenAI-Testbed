@@ -162,6 +162,11 @@ def train_network(env):
             master_extract_parent(pop)
             
 
+    #validate vine config
+    if args.numCores > 1:
+        print('VINE logging does not support multi-core atm. Turning off VINE logging.')
+        args.loggingFormat = ""
+
     # Simulation
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'gym_config')
