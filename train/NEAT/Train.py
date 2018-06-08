@@ -95,6 +95,7 @@ parser.add_argument('--logging-format', dest="loggingFormat", type=str, default=
 args = parser.parse_args()
 
 def simulate_species(net, env, episodes=1):
+    
     fitnesses = []
 
     for runs in range(episodes):  
@@ -135,7 +136,7 @@ def sigmoid(x):
 def worker_evaluate_genome(g):
     net = nn.create_feed_forward_phenotype(g)
     
-    fitness = simulate_species(net, my_env, args.episodes)    
+    fitness, info = simulate_species(net, my_env, args.episodes)    
     return fitness
 
 
@@ -202,9 +203,6 @@ def train_network(env):
         # Show output of the most fit genome against training data.
         winner = pop.statistics.best_genome()
         
-       
-                
-
         # Save best network
         import pickle
         with open(args.saveFile + '.pkl', 'wb') as output:
