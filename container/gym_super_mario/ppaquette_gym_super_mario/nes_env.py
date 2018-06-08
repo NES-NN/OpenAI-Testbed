@@ -51,6 +51,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.cmd_args = ['--xscale 2', '--yscale 2', '-f 0']
         self.lua_path = []
         self.subprocess = None
+        self.fceux_pid = None
         self.no_render = True
         self.viewer = None
 
@@ -217,8 +218,10 @@ class NesEnv(gym.Env, utils.EzPickle):
         args.extend(['--loadlua', self.temp_lua_path])
         args.append(self.rom_path)
         args.extend(['>/dev/null', '2>/dev/null', '&'])
-        self.subprocess = subprocess.Popen(' '.join(args), shell=True)
-        self.subprocess.communicate()
+        self.subprocess = subprocess.Popen("/bin/bash", shell=False, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)                             
+        stdout, stderr = self.subprocess.communicate(' '.join(args) + "\necho $!")
+        self.fceux_pid = int(stdout)
+
         if 0 == self.subprocess.returncode:
             self.is_initialized = 1
             if not self.disable_out_pipe:
@@ -374,8 +377,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
 
-    def _close(self):
-        # Terminating thread
+    def close(self):
         self.is_exiting = 1
         self._write_to_pipe('exit')
         sleep(0.05)
@@ -392,9 +394,8 @@ class NesEnv(gym.Env, utils.EzPickle):
 
     def _terminate_fceux(self):
         if self.subprocess is not None:
-            # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
             try:
-                os.kill(self.subprocess.pid + 1, signal.SIGKILL)
+                os.kill(self.fceux_pid, signal.SIGKILL)
             except OSError as e:
                 cmd = "kill -9 $(ps -ef | grep 'fceux' | grep " + self.temp_lua_path + " | awk '{print $2}')"
                 os.system(cmd)

@@ -22,6 +22,7 @@ up: down
 		--name $(container_name) \
 		-e VNC_SERVER_PASSWORD=password \
 		-p 5900:5900 \
+		-p 8000:8000 \
 		-v $(shell pwd)/$(train_dir):/opt/$(train_dir) \
 		-d $(container_tag)
 
