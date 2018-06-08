@@ -80,6 +80,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.first_step = False
         self.lock = (NesLock()).get_lock()
 
+        self.temp_lua_path = ""
+
         # Seeding
         self.curr_seed = 0
         self._seed()
@@ -190,8 +192,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         self._create_pipes()
 
         # Creating temporary lua file
-        temp_lua_path = os.path.join('/tmp', str(seeding.hash_seed(None) % 2 ** 32) + '.lua')
-        temp_lua_file = open(temp_lua_path, 'w', 1)
+        self.temp_lua_path = os.path.join('/tmp', str(seeding.hash_seed(None) % 2 ** 32) + '.lua')
+        temp_lua_file = open(self.temp_lua_path, 'w', 1)
         for k, v in list(self.launch_vars.items()):
             temp_lua_file.write('%s = "%s";\n' % (k, v))
         i = 0
@@ -212,7 +214,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Loading fceux
         args = [FCEUX_PATH]
         args.extend(self.cmd_args[:])
-        args.extend(['--loadlua', temp_lua_path])
+        args.extend(['--loadlua', self.temp_lua_path])
         args.append(self.rom_path)
         args.extend(['>/dev/null', '2>/dev/null', '&'])
         self.subprocess = subprocess.Popen(' '.join(args), shell=True)
@@ -227,9 +229,9 @@ class NesEnv(gym.Env, utils.EzPickle):
                         self.pipe_out = None
             # Removing lua file
             sleep(1)  # Sleeping to make sure fceux has time to load file before removing
-            if os.path.isfile(temp_lua_path):
+            if os.path.isfile(self.temp_lua_path):
                 try:
-                    os.remove(temp_lua_path)
+                    os.remove(self.temp_lua_path)
                 except OSError:
                     pass
         else:
@@ -394,7 +396,7 @@ class NesEnv(gym.Env, utils.EzPickle):
             try:
                 os.kill(self.subprocess.pid + 1, signal.SIGKILL)
             except OSError as e:
-                cmd = "/bin/kill -9 " + str (self.subprocess.pid) + ">/dev/null 2>&1"
+                cmd = "kill -9 $(ps -ef | grep 'fceux' | grep " + self.temp_lua_path + " | awk '{print $2}')"
                 os.system(cmd)
                 pass
             self.subprocess = None
