@@ -394,6 +394,8 @@ class NesEnv(gym.Env, utils.EzPickle):
             try:
                 os.kill(self.subprocess.pid + 1, signal.SIGKILL)
             except OSError as e:
+                cmd = "/bin/kill -9 " + str (self.subprocess.pid) + ">/dev/null 2>&1"
+                os.system(cmd)
                 pass
             self.subprocess = None
 
