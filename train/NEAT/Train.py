@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                         help="The number cores on your computer for parallel execution")
     parser.add_argument('--vine-logging', dest="vineLogging", action='store_true',
-                        help="Log out fitness of patent and children generations for VINE")
+                        help="Log out fitness of parent and children generations for VINE")
     parser.add_argument('--logging-dir', dest="loggingDir", type=str, default="snapshots",
                         help="The directory to log into")
     parser.add_argument('--display', dest="display", type=int, default=1,

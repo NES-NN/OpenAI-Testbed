@@ -70,6 +70,7 @@ launch_wooey() {
     python ${wooey_manage} runserver 0.0.0.0:8000 &
     python ${wooey_manage} addscript /opt/train/
     python3 ${wooey_manage} addscript /opt/train/NEAT/Train.py
+    python3 ${wooey_manage} addscript /opt/train/Random/RandomMario.py
 }
 
 run_vnc_server() {
