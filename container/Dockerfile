@@ -21,8 +21,7 @@ RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
 RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python-pip python3 python git unzip fceux nano python3-matplotlib tzdata python3-tk
 
 # 1.1 Upgrade pip and pip3
-RUN apt-get install -y python3-distutils && pip3 install --upgrade pip setuptools && pip install --upgrade pip
-
+RUN apt-get install -y python3-distutils && pip3 install --upgrade setuptools && pip install --upgrade pip setuptools
 
 # 2. installing X, xvfb, byobu and htop so we can SEE the action using a remote desktop access (VNC) and run training headless
 # and because this is the last apt, let's clean up after ourselves
@@ -33,20 +32,24 @@ RUN apt-get install -y x11vnc xvfb fluxbox wmctrl byobu htop  && \
 # 3. Install Neat dependencies
 RUN pip3 install scipy neat-python==0.8 argparse
 
-# 4. Install Super Mario environment bundle for OpenAI Gym
-COPY gym_super_mario /opt/gym_super_mario/
-RUN cd /opt/gym_super_mario/ && python3 setup.py install
-
-# 5. Install Uber VINE visualisation tool
-RUN pip3 install -U matplotlib && pip install colour && pip3 install click 
-RUN pip install colour
-RUN python3 -m pip install --upgrade pandas==0.22.0
+# 4. Install Uber VINE visualisation tool
+RUN pip3 install matplotlib colour click pandas==0.22.0
 RUN cd /opt && \
         git clone https://github.com/uber-common/deep-neuroevolution.git
 
+# 5. Install wooey
+RUN pip install wooey && pip3 install wooey && \
+        mkdir -p /opt/wooey && \
+        cd /opt/wooey && \
+        wooify -p OpenAI
+
+# 6. Install Super Mario environment bundle for OpenAI Gym
+COPY gym_super_mario /opt/gym_super_mario/
+RUN cd /opt/gym_super_mario/ && python3 setup.py install
 
 # VNC Server
 EXPOSE 5900
+EXPOSE 8000
 
 COPY run.sh /
 CMD ["/run.sh", "--allow-root"]
