@@ -211,7 +211,7 @@ if __name__ == "__main__":
                         help="Shows fitness for each species")
     args = parser.parse_args()
 
-    os.environ["DISPLAY"] = ":{0}".format(1)
+    os.environ["DISPLAY"] = ":1"
 
     smb_env = gym.make(game_name)
     train_network(smb_env)
