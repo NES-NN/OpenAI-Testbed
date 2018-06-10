@@ -51,9 +51,6 @@ def save_offspring_statistics(generation, genomes):
 
         for genome in genomes:
             genome_dict = json.loads(genome)
-
-            print(genome_dict['score'])
-
             row = np.hstack(("{:.6f}".format(genome_dict['score']), "{:.8f}".format(genome_dict['time']), "{:.6f}".format(genome_dict['fitness'])))
             writer.writerow(row)
 
