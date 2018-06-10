@@ -55,8 +55,9 @@ Both methods utilise the same training script which accepts the following argume
 ```
 usage: Train.py [-h] [--config-file CONFIGFILE] [--episodes EPISODES]
                 [--generations GENERATIONS] [--save-file SAVEFILE]
-                [--play-best] [--num-cores NUMCORES] [--vine-logging]
-                [--logging-dir LOGGINGDIR] [--display DISPLAY] [--v]
+                [--play-best] [--num-cores NUMCORES]
+                [--parallel-logging-file PARALLELLOGGINGFILE]
+                [--snapshots-dir SNAPSHOTSDIR] [--display DISPLAY] [--v]
 
 Mario NEAT Trainer
 
@@ -72,16 +73,15 @@ optional arguments:
   --play-best           Play the best of a trained network
   --num-cores NUMCORES  The number of cores on your computer for parallel
                         execution
-  --vine-logging        Log out fitness of parent and children generations for
-                        VINE
-  --logging-dir LOGGINGDIR
-                        The directory to log into
+  --parallel-logging-file PARALLELLOGGINGFILE
+                        The file path to log all requisite information from
+                        every genome
+  --snapshots-dir SNAPSHOTSDIR
+                        The snapshots directory for VINE logging
   --display DISPLAY     The virtual display buffer to bind on. Will only bind
                         on positive integers
   --v                   Shows fitness for each species
 ```
-
-__NOTE__: Currently Vine logging is not supported in multi-threaded mode.
 
 #### Wooey
 
@@ -115,7 +115,7 @@ To visualise the training you will need to run it via a VNC session within the c
 
 1. Open a local shell session by right clicking within the session and then selecting - `Applications > Shells > Bash`
 2. Change directory to `$ cd /opt/train/NEAT/`
-3. Launch the training via `$ python3 Train.py --display -1` - it is important to push the display as a negative integer so it does not bind to a virtual frame buffer!
+3. Launch the training via `$ python3 Train.py`
 
 ## Copyright and license
 

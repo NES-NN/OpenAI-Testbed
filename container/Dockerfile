@@ -5,17 +5,16 @@ LABEL maintainer="Joshua Beemster <joshua.a.beemster@gmail.com>"
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
-# 0. VINE click library wants utf-8 input
-ENV LANG=C.UTF.8
+# 1.1. VINE click library wants utf-8 input
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 # 1.2 Install tzdata
 RUN echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
     echo "tzdata tzdata/Zones/Europe select Berlin" >> /tmp/preseed.txt; \
     debconf-set-selections /tmp/preseed.txt && \
     rm -f /etc/timezone && \
-    rm -f /etc/localtime 
-    #&& \
-    #apt-get install -y tzdata
+    rm -f /etc/localtime
 
 # 1. Installing python2, python3 and dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends python3-pip python-pip python3 python git unzip fceux nano python3-matplotlib tzdata python3-tk

@@ -41,7 +41,7 @@ def save_statistics(pop_size, generation):
 
 def save_offspring_statistics(generation, genomes):
     """Save offspring statistics"""
-    path = args.loggingDir + "/snapshot_gen_{:04}/".format(int(generation))
+    path = args.snapshotsDir + "/snapshot_gen_{:04}/".format(int(generation))
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -59,7 +59,7 @@ def save_offspring_statistics(generation, genomes):
 
 def save_parent_statistics(generation, genomes):
     """Save parent statistics"""
-    path = args.loggingDir + "/snapshot_gen_{:04}/".format(generation + 1)
+    path = args.snapshotsDir + "/snapshot_gen_{:04}/".format(generation + 1)
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -93,8 +93,8 @@ def simulate_genome(net, env, episodes=1):
     fitnesses = []
 
     for runs in range(episodes):  
-        if episodes > 1:
-            print('Running episode: '+ str(runs))   
+        if args.v:
+            print('Running episode: %s' % str(runs))   
             
         observation = env.reset()
         done = stuck = accumulated_reward = 0.0
@@ -175,9 +175,8 @@ def train_network(env):
         print("\n ****** Training output ****** \n")
         print("Number of evaluations: {0}".format(pop.total_evaluations))
 
-        if args.vineLogging:
-            print("Saving VINE statistics into: {0}".format(args.loggingDir))
-            save_statistics(pop.config.pop_size, gen)
+        print("Saving VINE statistics into: {0}".format(args.snapshotsDir))
+        save_statistics(pop.config.pop_size, gen)
 
         with open(args.saveFile + '.pkl', 'wb') as output:
             print("Saving best genome into: {0}.pkl".format(args.saveFile))
@@ -205,11 +204,9 @@ if __name__ == "__main__":
     parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
     parser.add_argument('--parallel-logging-file', dest="parallelLoggingFile", type=str, default="/opt/train/NEAT/parallel_info.ndjson",
-                        help="The file path to log all information from every genome")
-    parser.add_argument('--vine-logging', dest="vineLogging", action='store_true',
-                        help="Log out fitness of parent and children generations for VINE")
-    parser.add_argument('--logging-dir', dest="loggingDir", type=str, default="/opt/train/NEAT/snapshots",
-                        help="The directory to log into")
+                        help="The file path to log all requisite information from every genome")
+    parser.add_argument('--snapshots-dir', dest="snapshotsDir", type=str, default="/opt/train/NEAT/snapshots",
+                        help="The snapshots directory for VINE logging")
     parser.add_argument('--display', dest="display", type=int, default=1,
                         help="The virtual display buffer to bind on.  Will only bind on positive integers")
     parser.add_argument('--v', action='store_true',
