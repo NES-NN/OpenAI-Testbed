@@ -140,6 +140,9 @@ def worker_evaluate_genome(g):
     fitness, info = simulate_genome(net, smb_env, args.episodes)
 
     with open(args.parallelLoggingFile, 'a') as file:
+        if fitness <= 0:
+            fitness = 1
+
         file.write(
             json.dumps({
                 'fitness': fitness,
