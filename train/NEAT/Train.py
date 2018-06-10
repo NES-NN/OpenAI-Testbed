@@ -212,7 +212,7 @@ if __name__ == "__main__":
     parser.add_argument('--config-file', dest="configFile", type=str, default="/opt/train/NEAT/gym_config",
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--episodes', type=int, default=1,
-                        help="The number of times to run a single genome. This takes the fitness score from the worst run")
+                        help="The number of times to run a single genome. This takes the fitness score from the mean of all the runs")
     parser.add_argument('--generations', type=int, default=10,
                         help="The number of generations to evolve the network")
     parser.add_argument('--save-file', dest="saveFile", type=str, default="neat_network",
