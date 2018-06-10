@@ -207,14 +207,11 @@ if __name__ == "__main__":
                         help="The file path to log all requisite information from every genome")
     parser.add_argument('--snapshots-dir', dest="snapshotsDir", type=str, default="/opt/train/NEAT/snapshots",
                         help="The snapshots directory for VINE logging")
-    parser.add_argument('--display', dest="display", type=int, default=1,
-                        help="The virtual display buffer to bind on.  Will only bind on positive integers")
     parser.add_argument('--v', action='store_true',
                         help="Shows fitness for each species")
     args = parser.parse_args()
 
-    if args.display >= 1:
-        os.environ["DISPLAY"] = ":{0}".format(args.display)
+    os.environ["DISPLAY"] = ":{0}".format(1)
 
     smb_env = gym.make(game_name)
     train_network(smb_env)
