@@ -4,6 +4,10 @@ train/snapshots/*
 
 train/\.vscode/
 
+train/NEAT/snapshots/*
+train/NEAT/neat_network*
+train/NEAT/parallel_info.ndjson
+
 train/NEAT/checkpoint
 
 train/NEAT/core
