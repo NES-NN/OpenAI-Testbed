@@ -15,3 +15,7 @@ train/NEAT/speciation\.csv
 train/NEAT/species_fitness\.csv
 
 train/NEAT/winner\.pkl
+.vscode/launch.json
+.vscode/settings.json
+gymBin/*
+testbedenv/*
