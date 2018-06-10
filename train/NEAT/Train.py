@@ -5,6 +5,7 @@ import csv
 import os
 import pickle
 import numpy as np
+import json
 from neat import nn, population, statistics, parallel
 from neat.math_util import mean
 
@@ -136,8 +137,9 @@ def sigmoid(x):
 def worker_evaluate_genome(g):
     """Evalute genome function for multi-threading"""
     net = nn.create_feed_forward_phenotype(g)
-    fitness, info = simulate_species(net, smb_env, args.episodes)    
+    fitness, info = simulate_species(net, smb_env, args.episodes)
     return fitness
+
 
 def train_network(env):
 
@@ -150,6 +152,8 @@ def train_network(env):
 
     def eval_fitness(genomes):
         """Evaluate fitness"""
+        genome_infos.clear()
+
         for g in genomes:            
             fitness, info = evaluate_genome(g)    
             genome_infos[g] = info
@@ -175,7 +179,6 @@ def train_network(env):
     if not args.playBest:
         # For VINE stop running in parallel
         if args.vineLogging or args.numCores == 1: 
-            genome_infos.clear()
             pop.run(eval_fitness, args.generations)
         else:
             pe = parallel.ParallelEvaluator(args.numCores, worker_evaluate_genome)       
@@ -217,13 +220,13 @@ if __name__ == "__main__":
     parser.add_argument('--play-best', dest="playBest", action='store_true',
                         help="Play the best of a trained network")
     parser.add_argument('--num-cores', dest="numCores", type=int, default=1,
-                        help="The number cores on your computer for parallel execution")
+                        help="The number of cores on your computer for parallel execution")
     parser.add_argument('--vine-logging', dest="vineLogging", action='store_true',
                         help="Log out fitness of parent and children generations for VINE")
     parser.add_argument('--logging-dir', dest="loggingDir", type=str, default="snapshots",
                         help="The directory to log into")
     parser.add_argument('--display', dest="display", type=int, default=1,
-                        help="The virtual display buffer to bind to.  Will only bind on positive integers")
+                        help="The virtual display buffer to bind on.  Will only bind on positive integers")
     parser.add_argument('--v', action='store_true',
                         help="Shows fitness for each species")
     args = parser.parse_args()
