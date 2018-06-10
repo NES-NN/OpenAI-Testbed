@@ -184,7 +184,7 @@ def train_network(env):
     else: 
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)
-        simulate_species(winner_net, env, 1)
+        simulate_genome(winner_net, env, 1)
 
     env.close()
 
