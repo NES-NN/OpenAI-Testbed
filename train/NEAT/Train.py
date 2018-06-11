@@ -16,7 +16,6 @@ from neat.math_util import mean
 
 
 game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
-genome_infos = {}
 smb_env = None
 args = None
 
