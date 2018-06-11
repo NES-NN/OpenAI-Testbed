@@ -7,6 +7,7 @@ train/\.vscode/
 train/NEAT/snapshots/*
 train/NEAT/neat_network*
 train/NEAT/parallel_info.ndjson
+train/Random/snapshots/*
 
 train/NEAT/checkpoint
 

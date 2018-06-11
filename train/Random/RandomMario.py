@@ -24,7 +24,7 @@ args = None
 
 def master_extract_cloud_ga(results, iteration):
     """Save offspring statistics"""
-    path = args.loggingDir + "/snapshot_gen_{:04}/".format(int(iteration))
+    path = args.snapshotsDir + "/snapshot_gen_{:04}/".format(int(iteration))
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -46,7 +46,7 @@ def master_extract_cloud_ga(results, iteration):
 
 def master_extract_parent(results, iteration):
     """Save parent statistics"""
-    path = args.loggingDir + "/snapshot_gen_{:04}/".format(int(iteration +1))
+    path = args.snapshotsDir + "/snapshot_gen_{:04}/".format(int(iteration +1))
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -114,11 +114,11 @@ def random_moves(env):
             print("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))
             experiment_infos.append(info)
 
-        if args.vineLogging:
-            master_extract_cloud_ga(experiment_infos, experiment)
-            master_extract_parent(experiment_infos, experiment)
+        master_extract_cloud_ga(experiment_infos, experiment)
+        master_extract_parent(experiment_infos, experiment)
 
         experiment += 1
+        
         env.close()
 
 
@@ -128,16 +128,11 @@ if __name__ == "__main__":
                         help="The amount of random loops to perform")
     parser.add_argument('--children-count', dest="childrenCount", type=int, default=20,
                         help="The amount of child loops to perform per top level loop")
-    parser.add_argument('--vine-logging', dest="vineLogging", action='store_true',
-                        help="Log out fitness of parent and children generations for VINE")
-    parser.add_argument('--logging-dir', dest="loggingDir", type=str, default="snapshots",
-                        help="The directory to log into")
-    parser.add_argument('--display', dest="display", type=int, default=1,
-                        help="The virtual display buffer to bind to.  Will only bind on positive integers")
+    parser.add_argument('--snapshots-dir', dest="snapshotsDir", type=str, default="/opt/train/Random/snapshots",
+                        help="The snapshots directory for VINE logging")
     args = parser.parse_args()
 
-    if args.display >= 1:
-        os.environ["DISPLAY"] = ":{0}".format(args.display)
+    os.environ["DISPLAY"] = ":1"
 
     smb_env = gym.make(game_name)
     random_moves(smb_env)
