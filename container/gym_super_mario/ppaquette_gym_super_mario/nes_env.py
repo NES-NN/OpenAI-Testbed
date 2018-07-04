@@ -51,6 +51,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.cmd_args = ['--xscale 2', '--yscale 2', '-f 0']
         self.lua_path = []
         self.subprocess = None
+        self.fceux_pid = None
         self.no_render = True
         self.viewer = None
 
@@ -79,6 +80,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         self._reset_info_vars()
         self.first_step = False
         self.lock = (NesLock()).get_lock()
+
+        self.temp_lua_path = ""
 
         # Seeding
         self.curr_seed = 0
@@ -190,8 +193,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         self._create_pipes()
 
         # Creating temporary lua file
-        temp_lua_path = os.path.join('/tmp', str(seeding.hash_seed(None) % 2 ** 32) + '.lua')
-        temp_lua_file = open(temp_lua_path, 'w', 1)
+        self.temp_lua_path = os.path.join('/tmp', str(seeding.hash_seed(None) % 2 ** 32) + '.lua')
+        temp_lua_file = open(self.temp_lua_path, 'w', 1)
         for k, v in list(self.launch_vars.items()):
             temp_lua_file.write('%s = "%s";\n' % (k, v))
         i = 0
@@ -212,11 +215,13 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Loading fceux
         args = [FCEUX_PATH]
         args.extend(self.cmd_args[:])
-        args.extend(['--loadlua', temp_lua_path])
+        args.extend(['--loadlua', self.temp_lua_path])
         args.append(self.rom_path)
         args.extend(['>/dev/null', '2>/dev/null', '&'])
-        self.subprocess = subprocess.Popen(' '.join(args), shell=True)
-        self.subprocess.communicate()
+        self.subprocess = subprocess.Popen("/bin/bash", shell=False, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)                             
+        stdout, stderr = self.subprocess.communicate(' '.join(args) + "\necho $!")
+        self.fceux_pid = int(stdout)
+
         if 0 == self.subprocess.returncode:
             self.is_initialized = 1
             if not self.disable_out_pipe:
@@ -227,9 +232,9 @@ class NesEnv(gym.Env, utils.EzPickle):
                         self.pipe_out = None
             # Removing lua file
             sleep(1)  # Sleeping to make sure fceux has time to load file before removing
-            if os.path.isfile(temp_lua_path):
+            if os.path.isfile(self.temp_lua_path):
                 try:
-                    os.remove(temp_lua_path)
+                    os.remove(self.temp_lua_path)
                 except OSError:
                     pass
         else:
@@ -372,8 +377,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
 
-    def _close(self):
-        # Terminating thread
+    def close(self):
         self.is_exiting = 1
         self._write_to_pipe('exit')
         sleep(0.05)
@@ -390,10 +394,11 @@ class NesEnv(gym.Env, utils.EzPickle):
 
     def _terminate_fceux(self):
         if self.subprocess is not None:
-            # Workaround, killing process with pid + 1 (shell = pid, shell + 1 = fceux)
             try:
-                os.kill(self.subprocess.pid + 1, signal.SIGKILL)
+                os.kill(self.fceux_pid, signal.SIGKILL)
             except OSError as e:
+                cmd = "kill -9 $(ps -ef | grep 'fceux' | grep " + self.temp_lua_path + " | awk '{print $2}')"
+                os.system(cmd)
                 pass
             self.subprocess = None
 

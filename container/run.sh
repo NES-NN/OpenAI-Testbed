@@ -7,6 +7,8 @@ main() {
     launch_xvfb
     log_i "Starting window manager..."
     launch_window_manager
+    log_i "Starting wooey server..."
+    launch_wooey
     log_i "Starting VNC server..."
     run_vnc_server
 }
@@ -60,6 +62,15 @@ launch_window_manager() {
             exit 1
         fi
     done
+}
+
+launch_wooey() {
+    local wooey_manage=/opt/wooey/OpenAI/manage.py
+    (cd /opt/wooey/OpenAI && celery -A OpenAI worker -c 1 --beat -l info &)
+    python ${wooey_manage} runserver 0.0.0.0:8000 &
+    python ${wooey_manage} addscript /opt/train/
+    python3 ${wooey_manage} addscript /opt/train/NEAT/Train.py
+    python3 ${wooey_manage} addscript /opt/train/Random/RandomMario.py
 }
 
 run_vnc_server() {
