@@ -119,12 +119,11 @@ def save_parent_statistics(generation, genomes):
 
 
 def simulate_genome(net, episodes=1):
-    fitnesses = []
+    distances = scores = times = []
+    
     level = args.level.split('-')
     
     for lvl in range(int(level[0])-1, int(level[1])):
-        run_result = []
-        
         for runs in range(episodes):
             is_finished = False
             stuck = 0
@@ -137,18 +136,16 @@ def simulate_genome(net, episodes=1):
 
                 stuck += 1 if reward <= 0 else 0
 
-            run_result.append(info['distance'] + info['score'] + (400 - info['time']))
-            
-            env[lvl].close()
-        
-        fitnesses.append(np.array(run_result).mean())
+            distances.append(info['distance'])
+            scores.append(info['score'])
+            times.append(info['time'])
 
-    fitness = np.array(fitnesses).mean()
+            env[lvl].close()
 
     if args.v:
-        print("Genome fitness: %s" % str(fitness))
+        print("Genome Distance %s - score %s - time %s" % (np.array(distances).mean(), np.array(scores).mean(), np.array(times).mean()))
 
-    return fitness, info
+    return np.array(distances).mean(), np.array(scores).mean(), np.array(times).mean()
 
 
 def clean_outputs(outputs):
@@ -164,7 +161,9 @@ def sigmoid(x):
 def worker_evaluate_genome(g):
     """Evalute genome function for multi-threading"""
     net = nn.create_feed_forward_phenotype(g)
-    fitness, info = simulate_genome(net, args.episodes)
+    distance, score, time = simulate_genome(net, args.episodes)
+
+    fitness = distance + score + 400 - time
 
     with open(args.parallelLoggingFile, 'a') as file:
         if fitness <= 0:
@@ -173,8 +172,8 @@ def worker_evaluate_genome(g):
         file.write(
             json.dumps({
                 'fitness': fitness,
-                'score': info['score'],
-                'time': info['time']
+                'score': score,
+                'time': time
             }) + "\n"
         )
 
