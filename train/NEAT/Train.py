@@ -14,11 +14,42 @@ from neat.math_util import mean
 #  GLOBALS
 # -----------------------------------------------------------------------------
 
+env = [
+    gym.make('ppaquette/SuperMarioBros-1-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-1-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-1-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-1-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-2-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-2-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-2-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-2-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-3-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-3-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-3-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-3-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-4-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-4-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-4-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-4-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-5-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-5-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-5-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-5-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-6-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-6-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-6-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-6-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-7-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-7-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-7-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-7-4-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-8-1-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-8-2-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-8-3-Tiles-v0'),
+    gym.make('ppaquette/SuperMarioBros-8-4-Tiles-v0')
+]
 
-game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
-smb_env = None
 args = None
-
 
 # -----------------------------------------------------------------------------
 #  VINE LOGGING
@@ -87,40 +118,34 @@ def save_parent_statistics(generation, genomes):
 # -----------------------------------------------------------------------------
 
 
-def simulate_genome(net, env, episodes=1):
-    """Run the simulation"""
-    fitnesses = []
-
-    for runs in range(episodes):  
-        if args.v:
-            print('Running episode: %s' % str(runs))   
-            
-        observation = env.reset()
-        done = stuck = accumulated_reward = 0.0
-
-        while not done and stuck < 150:
-            # Get move from NN
-            outputs = clean_outputs(net.serial_activate(observation.flatten()))
-
-            # Make move
-            observation, reward, done, info = env.step(outputs)
-            
-            # Adds distance traveled left since last move
-            accumulated_reward += reward
-
-            # Check if Mario is progressing in level
-            stuck += 1 if reward <= 0 else 0
-            
-        fitnesses.append(accumulated_reward)
-
-    fitness = np.array(fitnesses).mean()
+def simulate_genome(net, episodes=1):
+    distances = scores = times = []
     
+    level = args.level.split('-')
+    
+    for lvl in range(int(level[0])-1, int(level[1])):
+        for runs in range(episodes):
+            is_finished = False
+            stuck = 0
+            
+            observation = env[lvl].reset()
+            while not is_finished and stuck < 150:
+                outputs = clean_outputs(net.serial_activate(observation.flatten()))
+                
+                observation, reward, is_finished, info = env[lvl].step(outputs)
+
+                stuck += 1 if reward <= 0 else 0
+
+            distances.append(info['distance'])
+            scores.append(info['score'])
+            times.append(info['time'])
+
+            env[lvl].close()
+
     if args.v:
-        print("Genome fitness: %s" % str(fitness))
+        print("Genome Distance %s - score %s - time %s" % (np.array(distances).mean(), np.array(scores).mean(), np.array(times).mean()))
 
-    env.close()
-
-    return fitness, info
+    return np.array(distances).mean(), np.array(scores).mean(), np.array(times).mean()
 
 
 def clean_outputs(outputs):
@@ -136,7 +161,9 @@ def sigmoid(x):
 def worker_evaluate_genome(g):
     """Evalute genome function for multi-threading"""
     net = nn.create_feed_forward_phenotype(g)
-    fitness, info = simulate_genome(net, smb_env, args.episodes)
+    distance, score, time = simulate_genome(net, args.episodes)
+
+    fitness = distance + score + 400 - time
 
     with open(args.parallelLoggingFile, 'a') as file:
         if fitness <= 0:
@@ -145,15 +172,15 @@ def worker_evaluate_genome(g):
         file.write(
             json.dumps({
                 'fitness': fitness,
-                'score': info['score'],
-                'time': info['time']
+                'score': score,
+                'time': time
             }) + "\n"
         )
 
     return fitness
 
 
-def train_network(env):
+def train_network():
     """Train the NEAT network"""
     pop = population.Population(args.configFile)
     gen = 0
@@ -183,13 +210,12 @@ def train_network(env):
     else: 
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)
-        simulate_genome(winner_net, env, 1)
-
-    env.close()
-
-
+        simulate_genome(winner_net, 1)
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Mario NEAT Trainer')
+    parser.add_argument('--level', dest="level", type=str, default="1-32",
+                        help="What levels would you like to train mario on, default 1-32 where: 1 is World 1 Level 1 -> 32 is World 8 Level 4")
     parser.add_argument('--config-file', dest="configFile", type=str, default="/opt/train/NEAT/gym_config",
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--episodes', type=int, default=1,
@@ -212,5 +238,4 @@ if __name__ == "__main__":
 
     os.environ["DISPLAY"] = ":1"
 
-    smb_env = gym.make(game_name)
-    train_network(smb_env)
+    train_network()
