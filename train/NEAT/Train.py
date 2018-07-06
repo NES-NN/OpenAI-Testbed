@@ -92,8 +92,8 @@ def simulate_genome(net, env, episodes=1):
     """Run the simulation"""
     fitnesses = []
     stuckMax = 150
-    if args.playBest:
-        stuckMax *= 2 #twice as many frames in playBest mode
+    #if args.playBest:
+    #    stuckMax *= 2 #twice as many frames in playBest mode
 
     
     for runs in range(episodes):  
@@ -104,7 +104,7 @@ def simulate_genome(net, env, episodes=1):
 
         done = stuck = accumulated_reward = 0.0
 
-        while not done and stuck < 150:
+        while not done and stuck < stuckMax:
             # Get move from NN
             outputs = clean_outputs(net.serial_activate(observation.flatten()))
 
