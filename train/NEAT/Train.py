@@ -91,7 +91,11 @@ def save_parent_statistics(generation, genomes):
 def simulate_genome(net, env, episodes=1):
     """Run the simulation"""
     fitnesses = []
+    stuckMax = 150
+    if args.playBest:
+        stuckMax *= 2 #twice as many frames in playBest mode
 
+    
     for runs in range(episodes):  
         if args.v:
             print('Running episode: %s' % str(runs))   
