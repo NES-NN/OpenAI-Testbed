@@ -115,7 +115,7 @@ if mode == "human" then
 
 elseif mode == "normal" then    
     emu.speedmode("normal");
-    skip_frames = 2;
+    skip_frames = 1;
     start_delay = 175;
     send_all_pixels = 1500;
 else
