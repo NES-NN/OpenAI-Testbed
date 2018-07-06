@@ -3,8 +3,6 @@ from .package_info import USERNAME
 from .nes_env import NesEnv, MetaNesEnv
 from .super_mario_bros import SuperMarioBrosEnv, MetaSuperMarioBrosEnv
 
-from wrappers import control
-
 # Env registration
 # ==========================
 # (world_number, level_number, area_number, max_distance)
