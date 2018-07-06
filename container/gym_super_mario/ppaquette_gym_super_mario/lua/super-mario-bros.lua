@@ -6,7 +6,7 @@
 
 -- ** Parameters **
 -- target = "111";          -- World Number - Level Number - Area Number
--- mode = "algo";           -- algo, human
+-- mode = "algo";           -- algo, human, normal
 -- draw_tiles = "1";
 -- meta = "0"               -- meta indicates multiple mission
 -- pipe_name = "abc";
@@ -113,6 +113,11 @@ if mode == "human" then
     skip_commands = 1;
     start_delay = 125;
 
+elseif mode == "normal"    
+    emu.speedmode("normal");
+    skip_frames = 1;
+    start_delay = 175;
+    send_all_pixels = 1500;
 else
     -- algo
     emu.speedmode("maximum");
