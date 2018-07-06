@@ -9,6 +9,7 @@ import json
 from neat import nn, population, statistics, parallel
 from neat.math_util import mean
 
+from ppaquette_gym_super_mario.wrappers import *
 
 # -----------------------------------------------------------------------------
 #  GLOBALS
@@ -90,15 +91,17 @@ def save_parent_statistics(generation, genomes):
 def simulate_genome(net, env, episodes=1):
     """Run the simulation"""
     fitnesses = []
+    stuckMax = 150
 
     for runs in range(episodes):  
         if args.v:
             print('Running episode: %s' % str(runs))   
-            
+
         observation = env.reset()
+
         done = stuck = accumulated_reward = 0.0
 
-        while not done and stuck < 150:
+        while not done and stuck < stuckMax:
             # Get move from NN
             outputs = clean_outputs(net.serial_activate(observation.flatten()))
 
@@ -181,9 +184,12 @@ def train_network(env):
             print("Saving best genome into: {0}.pkl".format(args.saveFile))
             pickle.dump(pop.statistics.best_genome(), output, 1)
     else: 
+        wrapper = SetPlayingMode('normal')
+        env = wrapper(env)
+
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)
-        simulate_genome(winner_net, env, 1)
+        simulate_genome(winner_net, env.unwrapped, 1)
 
     env.close()
 
