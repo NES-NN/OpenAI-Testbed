@@ -95,8 +95,9 @@ def simulate_genome(net, env, episodes=1):
     for runs in range(episodes):  
         if args.v:
             print('Running episode: %s' % str(runs))   
-            
+        
         observation = env.reset()
+
         done = stuck = accumulated_reward = 0.0
 
         while not done and stuck < 150:
@@ -182,8 +183,9 @@ def train_network(env):
             print("Saving best genome into: {0}.pkl".format(args.saveFile))
             pickle.dump(pop.statistics.best_genome(), output, 1)
     else: 
-        wrapper = SetPlayingMode('normal')
-        env = wrapper(env)
+        #wrapper = SetPlayingMode('normal')
+        #env = wrapper(env)
+        env.mode = 'normal'
 
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)
