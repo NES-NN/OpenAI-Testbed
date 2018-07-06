@@ -183,13 +183,13 @@ def train_network(env):
             print("Saving best genome into: {0}.pkl".format(args.saveFile))
             pickle.dump(pop.statistics.best_genome(), output, 1)
     else: 
-        #wrapper = SetPlayingMode('normal')
-        #env = wrapper(env)
-        env.mode = 'normal'
+        wrapper = SetPlayingMode('normal')
+        env = wrapper(env)
+        #env.mode = 'human'
 
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)
-        simulate_genome(winner_net, env, 1)
+        simulate_genome(winner_net, env.unwrapped, 1)
 
     env.close()
 
