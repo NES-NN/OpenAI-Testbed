@@ -116,7 +116,7 @@ if mode == "human" then
 elseif mode == "normal" then    
     emu.speedmode("normal");
     --skip_frames = 1;  --would be great to switch this to 1, but current NNs not working well with it.
-	skip_frames = 2;
+    skip_frames = 2;
     start_delay = 175;
     send_all_pixels = 1500;
 else
