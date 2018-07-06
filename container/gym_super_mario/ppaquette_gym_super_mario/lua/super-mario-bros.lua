@@ -113,7 +113,7 @@ if mode == "human" then
     skip_commands = 1;
     start_delay = 125;
 
-elseif mode == "normal"    
+elseif mode == "normal" then    
     emu.speedmode("normal");
     skip_frames = 2;
     start_delay = 175;
