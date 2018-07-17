@@ -14,7 +14,7 @@ import gym
 from gym import utils, spaces
 from gym.utils import seeding
 
-SEARCH_PATH = os.pathsep.join([os.environ['PATH'], '/usr/games', '/usr/local/games'])
+SEARCH_PATH = os.pathsep.join([os.environ['PATH'], '/opt/gym_super_mario/fceux'])#'/usr/games', '/usr/local/games']) #use custom build
 FCEUX_PATH = spawn.find_executable('fceux', SEARCH_PATH)
 if FCEUX_PATH is None:
     raise gym.error.DependencyNotInstalled("fceux is required. Try installing with apt-get install fceux.")
