@@ -785,6 +785,24 @@ end;
 emu.registerexit(exit_hook);
 
 -- ===========================
+--      ** SAVE STATE **
+-- ===========================
+function load_saved_state_from_disk(filename)
+   saveBuffer = savestate.create("/home/jasonlan/test.fcs");
+   savestate.load(saveBuffer);
+   return saveBuffer;
+end;
+
+function snapshot_and_save_to_disk(saveBuffer)
+   savestate.save(saveBuffer);
+   savestate.persist(saveBuffer);	
+end;
+
+function reload_saved_state(saveBuffer)
+    savestate.load(saveBuffer);
+end;
+
+-- ===========================
 --      ** DEBUG **
 -- ===========================
 -- Functions used to debug levels (you will be an invincible swimmer with unlimited lives)
