@@ -87,6 +87,12 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.curr_seed = 0
         self._seed()
 
+        #saveState
+        self.loadStateFromFile = False
+        self.stateFileLocation = './saveStates/test.fcs'
+        self.saveState = False
+        self.reloadState = False
+
     def _configure(self, rom_path=None, lock=None):
         if rom_path is not None:
             self.rom_path = rom_path
@@ -270,6 +276,20 @@ class NesEnv(gym.Env, utils.EzPickle):
         return self.info
 
     def step(self, action):
+         #State save/load -- uses strange flag for method call convention
+        if self.loadStateFromFile:
+            self.loadState(stateFileLocation)
+            self.loadStateFromFile = False
+
+        if self.saveState:
+            self.saveGameState()
+            self.saveState = False
+
+        if self.reloadState:
+            self.reloadLastSavedState()
+            self.reloadState = False
+
+
         if 0 == self.is_initialized:
             return self._get_state(), 0, self._get_is_finished(), {}
 
@@ -380,7 +400,7 @@ class NesEnv(gym.Env, utils.EzPickle):
     def loadState(self, path=''):        
         self._write_to_pipe('load_'+ path)
 
-    def saveState(self):        
+    def saveGameState(self):        
         self._write_to_pipe('save')
 
     def reloadLastSavedState(self):        
@@ -669,7 +689,7 @@ class MetaNesEnv(NesEnv):
         self.screen = np.zeros(shape=(self.screen_height, self.screen_width, 3), dtype=np.uint8)
         return self._get_state()
 
-    def step(self, action):
+    def step(self, action):      
         # Changing level
         if self.find_new_level:
             self.change_level()
