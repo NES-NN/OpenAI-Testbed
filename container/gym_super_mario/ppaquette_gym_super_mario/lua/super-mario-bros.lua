@@ -788,7 +788,7 @@ emu.registerexit(exit_hook);
 --      ** SAVE STATE **
 -- ===========================
 function load_saved_state_from_disk(filename)
-   saveBuffer = savestate.create("/home/jasonlan/test.fcs");
+   saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
    savestate.load(saveBuffer);
    return saveBuffer;
 end;
