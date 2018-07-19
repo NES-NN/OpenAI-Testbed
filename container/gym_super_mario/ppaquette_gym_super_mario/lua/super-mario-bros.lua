@@ -152,6 +152,11 @@ addr_swimming_flag = 0x0704;
 addr_tiles = 0x500;
 
 -- ===========================
+--         SaveBuffers
+-- ===========================
+lastSaveBuffer = nil
+
+-- ===========================
 --         Functions
 -- ===========================
 -- Initiating variables
@@ -365,6 +370,25 @@ function show_curr_distance()
     distance = distance .. " (" .. get_distance_perc(curr_x_position, max_distance) .. ")";
     return emu.message(distance);
 end;
+
+-- ===========================
+--      ** SAVE STATE **
+-- ===========================
+function load_saved_state_from_disk(filename)
+   saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
+   savestate.load(saveBuffer);
+   return saveBuffer;
+end;
+
+function snapshot_and_save_to_disk(saveBuffer)
+   savestate.save(saveBuffer);
+   savestate.persist(saveBuffer);	
+end;
+
+function reload_saved_state(saveBuffer)
+    savestate.load(saveBuffer);
+end;
+
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
 -- Only returning values that have changed since last update
@@ -713,6 +737,15 @@ function parse_commands(line)
     elseif "exit" == command then
         close_pipes();
         os.exit()
+	elseif "load" == command then
+		--might be good to validate that data
+        lastSaveBuffer = load_saved_state_from_disk(data)
+	elseif "save" == command then
+		--might be good to validate that data
+        snapshot_and_save_to_disk(lastSaveBuffer)
+	elseif "reload" == command then	
+	--good to add a nil check
+        reload_saved_state(lastSaveBuffer)
     end;
     return;
 end;
@@ -784,23 +817,7 @@ function exit_hook()
 end;
 emu.registerexit(exit_hook);
 
--- ===========================
---      ** SAVE STATE **
--- ===========================
-function load_saved_state_from_disk(filename)
-   saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
-   savestate.load(saveBuffer);
-   return saveBuffer;
-end;
 
-function snapshot_and_save_to_disk(saveBuffer)
-   savestate.save(saveBuffer);
-   savestate.persist(saveBuffer);	
-end;
-
-function reload_saved_state(saveBuffer)
-    savestate.load(saveBuffer);
-end;
 
 -- ===========================
 --      ** DEBUG **
