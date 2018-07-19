@@ -376,6 +376,15 @@ class NesEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
+     
+    def loadState(self, path=''):        
+        self._write_to_pipe('load_'+ path)
+
+    def saveState(self):        
+        self._write_to_pipe('save')
+
+    def reloadLastSavedState(self):        
+        self._write_to_pipe('reload')
 
     def close(self):
         self.is_exiting = 1
