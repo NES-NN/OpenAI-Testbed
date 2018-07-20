@@ -54,7 +54,8 @@ def random_moves(env):
                 else:        
                     strike = 0
 
-                if (strike > 3):
+                if (strike > 30): #now that the gym catches the stuck state, this doesn't make sense. 
+                    #however leaving it at 3 would mean killing it before the gym state reload kicks in.
                     done = True
                 
                 last_distance = info.get('distance')
