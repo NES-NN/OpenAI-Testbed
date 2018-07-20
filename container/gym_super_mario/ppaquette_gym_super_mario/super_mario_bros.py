@@ -269,3 +269,42 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
         std_reward = min(1000, std_reward)  # Cannot be more than 1,000
         std_reward = max(0, std_reward)  # Cannot be less than 0
         return std_reward
+
+class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):
+    noProgress = 0
+    lastDistance = 0
+
+    def __init__(self, draw_tiles=False, level=0):
+        SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
+        NesEnv.loadStateFromFile = True
+    
+       
+    def _process_data_message(self, frame_number, data):
+        # Format: data_<frame>#name_1:value_1|name_2:value_2|...
+        if frame_number <= self.last_frame or self.info is None:
+            return
+        if frame_number % 100 == 1:
+            NesEnv.saveState = True
+        parts = data.split('|')
+        for part in parts:
+            if part.find(':') == -1:
+                continue
+            parts_2 = part.split(':')
+            name = parts_2[0]
+            value = int(parts_2[1])
+            if 'is_finished' == name:
+                self.is_finished = bool(value)
+            elif 'distance' == name:
+                self.reward = value - self.info[name]
+                self.episode_reward = value
+                self.info[name] = value
+                if value - lastDistance < 10:
+                    noProgress += 1
+                if noProgress == 5:
+                    noProgress = 0
+                    NesEnv.reloadState = True
+
+                lastDistance = value
+
+            else:
+                self.info[name] = value

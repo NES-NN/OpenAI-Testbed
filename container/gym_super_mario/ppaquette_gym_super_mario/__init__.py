@@ -39,3 +39,15 @@ for draw_tiles in range(2):
             # Seems to be non-deterministic about 5% of the time
             nondeterministic=True,
         )
+    
+    for (world_number, level_number, area_number, max_distance) in SMB_LEVELS:
+        level = (world_number - 1) * 4 + (level_number - 1)
+        register(
+            id='{}/SavingSuperMarioBros-{}-{}{}-v0'.format(USERNAME, world_number, level_number, tile_suffix),
+            entry_point='{}_gym_super_mario:SavingSuperMarioBrosEnv'.format(USERNAME),
+            max_episode_steps=10000,
+            reward_threshold=(max_distance - 40),
+            kwargs={ 'draw_tiles': draw_tiles, 'level': level },
+            # Seems to be non-deterministic about 5% of the time
+            nondeterministic=True,
+        )

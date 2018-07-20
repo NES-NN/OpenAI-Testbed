@@ -12,7 +12,7 @@ import os
 # -----------------------------------------------------------------------------
 
 
-game_name = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
+game_name = 'ppaquette/SavingSuperMarioBrosEnv-1-1-Tiles-v0'
 smb_env = None
 args = None
 
@@ -24,7 +24,6 @@ args = None
 def random_moves(env):
     """Execute random moves on the network"""
     experiment = 0
-    env.loadState('./saveStates/test.fcs')
 
     while (experiment < args.experimentCount):
         child_run = 0
@@ -32,7 +31,6 @@ def random_moves(env):
 
         while (child_run < args.childrenCount):    
             observation = env.reset()
-            env.reloadLastSavedState()
 
             done = False
             t = 0
@@ -49,7 +47,6 @@ def random_moves(env):
                 
                 if not t % 100:
                     print(t, info)
-                    env.saveState()
 
                 # Add cutoff to none progressing random agents
                 if (info.get('distance') < last_distance):
