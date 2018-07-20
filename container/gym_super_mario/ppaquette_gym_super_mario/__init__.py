@@ -1,7 +1,7 @@
 from gym.envs.registration import register
 from .package_info import USERNAME
 from .nes_env import NesEnv, MetaNesEnv
-from .super_mario_bros import SuperMarioBrosEnv, MetaSuperMarioBrosEnv
+from .super_mario_bros import SuperMarioBrosEnv, MetaSuperMarioBrosEnv, SavingSuperMarioBrosEnv
 
 # Env registration
 # ==========================
