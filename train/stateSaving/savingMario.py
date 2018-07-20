@@ -12,7 +12,7 @@ import os
 # -----------------------------------------------------------------------------
 
 
-game_name = 'ppaquette/SavingSuperMarioBrosEnv-1-1-Tiles-v0'
+game_name = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 smb_env = None
 args = None
 
