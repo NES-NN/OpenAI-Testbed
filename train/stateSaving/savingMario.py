@@ -5,6 +5,7 @@ import numpy as np
 import shutil
 import csv
 import os
+import logging
 
 
 # -----------------------------------------------------------------------------
@@ -81,5 +82,11 @@ if __name__ == "__main__":
 
     os.environ["DISPLAY"] = ":1"
 
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.info('Starting saving state training example')
+
     smb_env = gym.make(game_name)
+    
     random_moves(smb_env)
+    

@@ -298,7 +298,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
                 self.reward = value - self.info[name]
                 self.episode_reward = value
                 self.info[name] = value
-                if value - self.lastDistance < 10:
+                if (value - self.lastDistance) < 10:
                     self.noProgress += 1
                 if self.noProgress == 5:
                     self.noProgress = 0
