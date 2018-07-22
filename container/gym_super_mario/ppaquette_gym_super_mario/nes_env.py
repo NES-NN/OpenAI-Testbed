@@ -89,7 +89,7 @@ class NesEnv(gym.Env, utils.EzPickle):
 
         #saveState
         self.loadStateFromFile = False
-        self.stateFileLocation = './saveStates/test.fcs'
+        self.stateFileLocation = '/opt/train/stateSaving/saveStates/test.fcs' #'./saveStates/test.fcs' 
         self.saveState = False
         self.reloadState = False
 
@@ -278,14 +278,17 @@ class NesEnv(gym.Env, utils.EzPickle):
     def step(self, action):
          #State save/load -- uses strange flag for method call convention
         if self.loadStateFromFile:
+            print("load state from file command raised")
             self.loadState(stateFileLocation)
             self.loadStateFromFile = False
 
         if self.saveState:
+            print("save game state command raised")
             self.saveGameState()
             self.saveState = False
 
         if self.reloadState:
+            print("reload last saved game state raised")
             self.reloadLastSavedState()
             self.reloadState = False
 
