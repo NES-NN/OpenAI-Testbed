@@ -270,13 +270,13 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
         std_reward = max(0, std_reward)  # Cannot be less than 0
         return std_reward
 
-class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):
-    noProgress = 0
-    lastDistance = 0
-
+class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):    
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
+        NesEnv.logger.info("Starting the SavingSuperMarioBros Environment...")
         NesEnv.loadStateFromFile = True
+        self.noProgress = 0
+        self.lastDistance = 0
     
        
     def _process_data_message(self, frame_number, data):
@@ -298,13 +298,17 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):
                 self.reward = value - self.info[name]
                 self.episode_reward = value
                 self.info[name] = value
-                if value - lastDistance < 10:
-                    noProgress += 1
-                if noProgress == 5:
-                    noProgress = 0
+                if value - self.lastDistance < 10:
+                    self.noProgress += 1
+                if self.noProgress == 5:
+                    self.noProgress = 0
                     NesEnv.reloadState = True
 
-                lastDistance = value
+                self.lastDistance = value
 
             else:
                 self.info[name] = value
+
+    def _process_reset_message(self):
+        self.noProgress = 0
+        self.lastDistance = 0
