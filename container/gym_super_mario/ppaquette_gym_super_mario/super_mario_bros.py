@@ -273,7 +273,7 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
 class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):    
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
-        NesEnv.logger.info("Starting the SavingSuperMarioBros Environment...")
+        logger.info("Starting the SavingSuperMarioBros Environment...")
         NesEnv.loadStateFromFile = True
         self.noProgress = 0
         self.lastDistance = 0
