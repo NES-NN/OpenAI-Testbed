@@ -270,11 +270,11 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
         std_reward = max(0, std_reward)  # Cannot be less than 0
         return std_reward
 
-class SavingSuperMarioBrosEnv(SuperMarioBrosEnv, NesEnv):    
+class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):    
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
-        NesEnv.loadStateFromFile = True
+        loadStateFromFile = True
         self.noProgress = 0
         self.lastDistance = 0
     
