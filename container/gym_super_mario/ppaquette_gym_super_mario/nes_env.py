@@ -276,19 +276,19 @@ class NesEnv(gym.Env, utils.EzPickle):
         return self.info
 
     def step(self, action):
-         #State save/load -- uses strange flag for method call convention
+         #State save/load -- uses strange "flag for method call" convention
         if self.loadStateFromFile:
-            print("load state from file command raised")
+            logger.info("load state from file command raised")
             self.loadState(stateFileLocation)
             self.loadStateFromFile = False
 
         if self.saveState:
-            print("save game state command raised")
+            logger.info("save game state command raised")
             self.saveGameState()
             self.saveState = False
 
         if self.reloadState:
-            print("reload last saved game state raised")
+            logger.info("reload last saved game state raised")
             self.reloadLastSavedState()
             self.reloadState = False
 
