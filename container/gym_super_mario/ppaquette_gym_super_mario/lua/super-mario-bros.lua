@@ -375,7 +375,7 @@ end;
 --      ** SAVE STATE **
 -- ===========================
 function load_saved_state_from_disk(filename)
-   gui.text(50,50, "load_saved_state_from_disk called");
+   gui.text(50,50, "load_saved_state_from_disk called:" + filename);
    saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
    savestate.load(saveBuffer);
    return saveBuffer;
