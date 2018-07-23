@@ -279,8 +279,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.lastDistance = 0
     
        
-    def _process_data_message(self, frame_number, data):
-        logger.info("starting _process_data_message")
+    def _process_data_message(self, frame_number, data):        
         # Format: data_<frame>#name_1:value_1|name_2:value_2|...
         if frame_number <= self.last_frame or self.info is None:
             return

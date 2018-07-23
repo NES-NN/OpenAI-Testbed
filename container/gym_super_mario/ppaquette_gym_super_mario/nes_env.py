@@ -90,6 +90,9 @@ class NesEnv(gym.Env, utils.EzPickle):
         #saveState
         self.loadStateFromFile = False
         self.stateFileLocation = '/opt/train/stateSaving/saveStates/test.fcs' #'./saveStates/test.fcs' 
+        if not os.path.isfile(self.stateFileLocation):
+            logger.info("Could not load save file!")
+
         self.saveState = False
         self.reloadState = False
 
