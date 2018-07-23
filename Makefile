@@ -13,11 +13,11 @@ depend_log     = $(build_dir)/.depend
 container_tag  = openai/smb
 container_name = openai_smb
 
-train_root_dir = $(shell pwd)
-OSFile = /proc/sys/kernel/osrelease
+train_root_dir = $(shell pwd) 
+OSFile = /proc/sys/kernel/osrelease 
 if grep -q "Microsoft" "$OSFile"; then
 	train_root_dir = /c/workspace/OpenAI-Testbed
-fi
+fi 
 
 # -----------------------------------------------------------------------------
 #  FUNCTIONS
