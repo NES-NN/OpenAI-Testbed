@@ -6,6 +6,8 @@ import shutil
 import csv
 import os
 import logging
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 # -----------------------------------------------------------------------------
