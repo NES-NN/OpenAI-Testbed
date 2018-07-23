@@ -274,7 +274,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
-        loadStateFromFile = True
+        self.loadStateFromFile = True
         self.noProgress = 0
         self.lastDistance = 0
     

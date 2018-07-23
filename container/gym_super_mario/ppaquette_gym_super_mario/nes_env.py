@@ -281,11 +281,13 @@ class NesEnv(gym.Env, utils.EzPickle):
         return self.info
 
     def step(self, action):        
-        logger.info("running next step")
-         #State save/load -- uses strange "flag for method call" convention
+        if 0 == self.is_initialized:
+            return self._get_state(), 0, self._get_is_finished(), {}
+
+        #State save/load -- uses strange "flag for method call" convention
         if self.loadStateFromFile:
             logger.info("load state from file command raised")
-            self.loadState(stateFileLocation)
+            self.loadState(self.stateFileLocation)
             self.loadStateFromFile = False
 
         if self.saveState:
@@ -297,10 +299,6 @@ class NesEnv(gym.Env, utils.EzPickle):
             logger.info("reload last saved game state raised")
             self.reloadLastSavedState()
             self.reloadState = False
-
-
-        if 0 == self.is_initialized:
-            return self._get_state(), 0, self._get_is_finished(), {}
 
         if NUM_ACTIONS != len(action):
             logger.warn('NES action list must contain %d items. Padding missing items with 0' % NUM_ACTIONS)
