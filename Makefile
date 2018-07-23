@@ -32,7 +32,7 @@ up-win: down
 		-e VNC_SERVER_PASSWORD=password \
 		-p 5900:5900 \
 		-p 8000:8000 \
-		-v /c/workspace/OpenAI-Testbed:/opt/$(train_dir) \
+		-v /c/workspace/OpenAI-Testbed/$(train_dir):/opt/$(train_dir) \
 		-d $(container_tag)
 
 down:
