@@ -47,7 +47,7 @@ def random_moves(env):
                 t += 1
                 
                 if not t % 100:
-                    logger.info(t, info)
+                    logger.info(t + ", " + info)
 
                 # Add cutoff to none progressing random agents
                 if (info.get('distance') < last_distance):
