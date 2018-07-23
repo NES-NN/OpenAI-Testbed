@@ -92,6 +92,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.stateFileLocation = '/opt/train/stateSaving/saveStates/test.fcs' #'./saveStates/test.fcs' 
         if not os.path.isfile(self.stateFileLocation):
             logger.info("Could not load save file!")
+        else:
+            logger.info("state save file found.")
 
         self.saveState = False
         self.reloadState = False
@@ -278,7 +280,8 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Overridable - Returns the other variables
         return self.info
 
-    def step(self, action):
+    def step(self, action):        
+        logger.info("running next step")
          #State save/load -- uses strange "flag for method call" convention
         if self.loadStateFromFile:
             logger.info("load state from file command raised")
