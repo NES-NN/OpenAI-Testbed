@@ -47,7 +47,7 @@ def random_moves(env):
                 t += 1
                 
                 if not t % 100:
-                    print(t, info)
+                    logger.info(t, info)
 
                 # Add cutoff to none progressing random agents
                 if (info.get('distance') < last_distance):
@@ -62,7 +62,7 @@ def random_moves(env):
                 last_distance = info.get('distance')
 
             child_run += 1
-            print("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))
+            logger.info("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))
             experiment_infos.append(info)
             
         experiment += 1
@@ -81,6 +81,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     os.environ["DISPLAY"] = ":1"
+    
+    gym.undo_logger_setup()
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
