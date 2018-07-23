@@ -751,6 +751,14 @@ function parse_commands(line)
         snapshot_and_save_to_disk(lastSaveBuffer)
 	elseif "reload" == command then	
 	--good to add a nil check
+
+	--using part of change levels to reset STATE
+		is_started = 0;
+        is_finished = 0;
+        changing_level = 0;
+        reset_vars();
+        emu.softreset();
+		--end using part of change levels to reset STATE
         reload_saved_state(lastSaveBuffer)
     end;
     return;
