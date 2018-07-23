@@ -1,4 +1,4 @@
-.PHONY: up down clean
+.PHONY: up-nix up-win down clean
 
 # -----------------------------------------------------------------------------
 #  CONSTANTS
@@ -13,23 +13,26 @@ depend_log     = $(build_dir)/.depend
 container_tag  = openai/smb
 container_name = openai_smb
 
-train_root_dir = $(shell pwd) 
-OSFile = /proc/sys/kernel/osrelease 
-if grep -q "Microsoft" "$(OSFile)"; then
-	train_root_dir = /c/workspace/OpenAI-Testbed
-fi 
-
 # -----------------------------------------------------------------------------
 #  FUNCTIONS
 # -----------------------------------------------------------------------------
 
-up: down
+up-nix: down
 	docker run \
 		--name $(container_name) \
 		-e VNC_SERVER_PASSWORD=password \
 		-p 5900:5900 \
 		-p 8000:8000 \
-		-v $(train_root_dir)/$(train_dir):/opt/$(train_dir) \
+		-v $(shell pwd)/$(train_dir):/opt/$(train_dir) \
+		-d $(container_tag)
+
+up-win: down
+	docker run \
+		--name $(container_name) \
+		-e VNC_SERVER_PASSWORD=password \
+		-p 5900:5900 \
+		-p 8000:8000 \
+		-v /c/workspace/OpenAI-Testbed:/opt/$(train_dir) \
 		-d $(container_tag)
 
 down:
