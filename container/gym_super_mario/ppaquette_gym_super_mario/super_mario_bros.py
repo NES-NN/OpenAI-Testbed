@@ -285,7 +285,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
             return
         if frame_number % 100 == 1:
             logger.info("Frame {}... need to save again".format(frame_number))
-            NesEnv.saveState = True
+            self.saveState = True
         parts = data.split('|')
         for part in parts:
             if part.find(':') == -1:
@@ -305,7 +305,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
                 if self.noProgress == 5:
                     self.noProgress = 0
                     logger.info("Stuck detected... need to reload")
-                    NesEnv.reloadState = True
+                    self.reloadState = True
 
                 self.lastDistance = value
 
