@@ -382,6 +382,9 @@ function load_saved_state_from_disk(filename)
 end;
 
 function snapshot_and_save_to_disk(saveBuffer)
+   if (saveBuffer == nil) then
+	gui.text(50,50, "cannot save, lost buffer :(");
+   end;
    gui.text(50,50, "snapshot_and_save_to_disk called");
    savestate.save(saveBuffer);
    savestate.persist(saveBuffer);	
