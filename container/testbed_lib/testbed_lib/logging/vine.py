@@ -10,7 +10,7 @@ import numpy as np
 
 
 def save_statistics(parallel_logging_file, pop_size, generation, generation_count, snapshots_dir):
-    """Splits apart the file into generations and saves them"""
+    """Splits apart the parallel logging file into generations and saves them"""
     with open(parallel_logging_file) as file:
         contents = file.readlines()
 
