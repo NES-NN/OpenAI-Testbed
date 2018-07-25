@@ -25,7 +25,9 @@ setup(
     download_url="https://github.com/NES-NN/OpenAI-Testbed/tarball/%s" % __version__,
     packages=find_packages(),
     install_requires=[
-        "numpy"
+        "numpy",
+        "graphviz",
+        "matplotlib"
     ],
     tests_require=[
         "nose"
