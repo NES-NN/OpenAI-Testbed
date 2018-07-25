@@ -24,3 +24,6 @@ train/NEAT/winner\.pkl
 .vscode/settings.json
 gymBin/*
 testbedenv/*
+
+venv
+.idea
