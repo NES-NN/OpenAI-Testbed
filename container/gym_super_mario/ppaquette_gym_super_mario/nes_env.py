@@ -87,6 +87,17 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.curr_seed = 0
         self._seed()
 
+        #saveState
+        self.loadStateFromFile = False
+        self.stateFileLocation = '/opt/train/stateSaving/saveStates/test.fcs' #'./saveStates/test.fcs' 
+        if not os.path.isfile(self.stateFileLocation):
+            logger.info("Could not load save file!")
+        else:
+            logger.info("state save file found.")
+
+        self.saveState = False
+        self.reloadState = False
+
     def _configure(self, rom_path=None, lock=None):
         if rom_path is not None:
             self.rom_path = rom_path
@@ -269,9 +280,25 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Overridable - Returns the other variables
         return self.info
 
-    def step(self, action):
+    def step(self, action):        
         if 0 == self.is_initialized:
             return self._get_state(), 0, self._get_is_finished(), {}
+
+        #State save/load -- uses strange "flag for method call" convention
+        if self.loadStateFromFile:
+            logger.info("load state from file command raised")
+            self.loadState(self.stateFileLocation)
+            self.loadStateFromFile = False
+
+        if self.saveState:
+            logger.info("save game state command raised")
+            self.saveGameState()
+            self.saveState = False
+
+        if self.reloadState:
+            logger.info("reload last saved game state raised")
+            self.reloadLastSavedState()
+            self.reloadState = False
 
         if NUM_ACTIONS != len(action):
             logger.warn('NES action list must contain %d items. Padding missing items with 0' % NUM_ACTIONS)
@@ -376,6 +403,15 @@ class NesEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
+     
+    def loadState(self, path=''):        
+        self._write_to_pipe('load_'+ path)
+
+    def saveGameState(self):        
+        self._write_to_pipe('save')
+
+    def reloadLastSavedState(self):        
+        self._write_to_pipe('reload')
 
     def close(self):
         self.is_exiting = 1
@@ -660,7 +696,7 @@ class MetaNesEnv(NesEnv):
         self.screen = np.zeros(shape=(self.screen_height, self.screen_width, 3), dtype=np.uint8)
         return self._get_state()
 
-    def step(self, action):
+    def step(self, action):      
         # Changing level
         if self.find_new_level:
             self.change_level()
