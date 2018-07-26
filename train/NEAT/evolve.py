@@ -90,7 +90,6 @@ def run(config):
         winner = pop.run(pe.evaluate, 5)
         
         if args.vineLogging:
-            #TODO: Fix Vine Logging, everything needed should be in stats. 
             visualise.save_statistics(stats)
         else:
             visualise.plot_stats(stats, ylog=False, view=False)
@@ -101,9 +100,7 @@ def run(config):
             pickle.dump(winner, output, 1)
 
 def playBest(config, bestFile):
-    #TODO: Set to normal...
-    # Error - The mode "normal" is not supported. Supported options are "algo" or "human"
-    wrapper = SetPlayingMode('human')
+    wrapper = SetPlayingMode('normal')
     e = wrapper(env[0])
 
     genome = pickle.load(open(bestFile, 'rb'))
@@ -151,6 +148,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config = load_config(args.configFile)
+
+    os.environ["DISPLAY"] = ":1"
 
     if args.playBest:
         playBest(config, args.playBest)
