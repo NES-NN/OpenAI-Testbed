@@ -92,14 +92,11 @@ def simulate_genome(net, env, episodes=1):
     """Run the simulation"""
     fitnesses = []
     stuckMax = 150
-    #if args.playBest:
-    #    stuckMax *= 2 #twice as many frames in playBest mode
-
     
-    for runs in range(episodes):  
+    for runs in range(episodes):
         if args.v:
             print('Running episode: %s' % str(runs))   
-        
+
         observation = env.reset()
 
         done = stuck = accumulated_reward = 0.0
@@ -189,7 +186,6 @@ def train_network(env):
     else: 
         wrapper = SetPlayingMode('normal')
         env = wrapper(env)
-        #env.mode = 'human'
 
         winner = pickle.load(open(args.saveFile + '.pkl', 'rb'))
         winner_net = nn.create_feed_forward_phenotype(winner)

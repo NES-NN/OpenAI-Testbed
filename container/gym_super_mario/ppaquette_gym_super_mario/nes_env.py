@@ -280,7 +280,7 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Overridable - Returns the other variables
         return self.info
 
-    def step(self, action):        
+    def step(self, action):
         if 0 == self.is_initialized:
             return self._get_state(), 0, self._get_is_finished(), {}
 
@@ -696,7 +696,7 @@ class MetaNesEnv(NesEnv):
         self.screen = np.zeros(shape=(self.screen_height, self.screen_width, 3), dtype=np.uint8)
         return self._get_state()
 
-    def step(self, action):      
+    def step(self, action):
         # Changing level
         if self.find_new_level:
             self.change_level()

@@ -93,4 +93,3 @@ if __name__ == "__main__":
     smb_env = gym.make(game_name)
     
     random_moves(smb_env)
-    
