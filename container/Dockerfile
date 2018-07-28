@@ -29,7 +29,7 @@ RUN apt-get install -y x11vnc xvfb fluxbox wmctrl byobu htop  && \
         rm -rf /var/lib/apt/lists/*
 
 # 3. Install Neat dependencies
-RUN pip3 install scipy neat-python==0.8 argparse
+RUN pip3 install scipy neat-python argparse
 
 # 4. Install Uber VINE visualisation tool
 RUN pip3 install matplotlib colour click pandas==0.22.0
