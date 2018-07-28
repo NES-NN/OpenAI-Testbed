@@ -744,20 +744,20 @@ function parse_commands(line)
         close_pipes();
         os.exit()
 	elseif "load" == command then
-	    --might be good to validate that data
+        --might be good to validate that data
         lastSaveBuffer = load_saved_state_from_disk(data)
 	elseif "save" == command then
 	    --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
 	elseif "reload" == command then	
-	    --good to add a nil check
-	    --using part of change levels to reset STATE
-	    is_started = 0;
+        --good to add a nil check
+        --using part of change levels to reset STATE
+        is_started = 0;
         is_finished = 0;
         changing_level = 0;
         reset_vars();
         emu.softreset();
-	    --end using part of change levels to reset STATE
+        --end using part of change levels to reset STATE
         reload_saved_state(lastSaveBuffer)
     end;
     return;
