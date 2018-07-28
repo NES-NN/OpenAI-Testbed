@@ -747,7 +747,7 @@ function parse_commands(line)
         --might be good to validate that data
         lastSaveBuffer = load_saved_state_from_disk(data)
 	elseif "save" == command then
-	    --might be good to validate that data
+        --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
 	elseif "reload" == command then	
         --good to add a nil check
