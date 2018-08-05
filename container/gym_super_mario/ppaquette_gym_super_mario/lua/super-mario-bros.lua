@@ -377,7 +377,12 @@ end;
 -- ===========================
 function load_saved_state_from_disk(filename)
    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
-   saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
+   if (file_exists(filename)) then
+	saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
+   else 
+	gui.text(50,50, "could not find file:" .. filename);
+	emu.pause(); --make it obvious there is an error
+   end;
    --savestate.load(saveBuffer); --we'll use reload_saved_state to load
    return saveBuffer;
 end;
@@ -385,10 +390,13 @@ end;
 function snapshot_and_save_to_disk(saveBuffer)
    if (saveBuffer == nil) then
 	gui.text(50,50, "cannot save, lost buffer :(");
+	emu.pause(); --make it obvious there is an error
+   else
+	gui.text(50,50, "snapshot_and_save_to_disk called");
+	savestate.save(saveBuffer);
+	savestate.persist(saveBuffer);	
    end;
-   gui.text(50,50, "snapshot_and_save_to_disk called");
-   savestate.save(saveBuffer);
-   savestate.persist(saveBuffer);	
+   
 end;
 
 function reload_saved_state(saveBuffer)
@@ -397,6 +405,10 @@ function reload_saved_state(saveBuffer)
 	is_reload = 0;
 end;
 
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
 -- Only returning values that have changed since last update
@@ -865,6 +877,7 @@ function main_loop()
     end;
     running_thread = 1;
     local framecount = emu.framecount();
+
 	if is_reload == 1 then
 		reload_saved_state(lastSaveBuffer);
 	end;
