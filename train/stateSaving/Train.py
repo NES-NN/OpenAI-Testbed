@@ -95,7 +95,12 @@ if __name__ == "__main__":
 
     smb_env = gym.make(game_name)
     
+    #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
     wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
     smb_env = wrapper(smb_env)
+
+    #Since we are using the same save state file for all runs, 
+    #this loads that file and state now.
+    smb_env.loadSaveStateFile()
 
     random_moves(smb_env)

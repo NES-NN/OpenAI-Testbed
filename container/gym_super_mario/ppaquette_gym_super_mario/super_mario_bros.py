@@ -274,7 +274,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
-        self.loadStateFromFile = True
+        #self.loadStateFromFile = True
         self.noProgress = 0
         self.lastDistance = 0
     
@@ -285,7 +285,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
             return
         if frame_number % 300 == 1:
             logger.info("Frame {}... need to save again".format(frame_number))
-            self.saveState = True
+            #self.saveState = True
         parts = data.split('|')
         for part in parts:
             if part.find(':') == -1:
@@ -305,7 +305,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
                 if self.noProgress == 10:
                     self.noProgress = 0
                     logger.info("Stuck detected... need to reload")
-                    self.reloadState = True
+                    #self.reloadState = True
 
                 self.lastDistance = value
 

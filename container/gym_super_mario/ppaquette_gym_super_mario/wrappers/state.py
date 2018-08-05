@@ -18,5 +18,22 @@ def SetSaveStateFolder(stateFileLocation):
                 raise gym.error.Error('Error - Could not load save file! "{}" '.format(stateFileLocation))
                 
             self.unwrapped.stateFileLocation = stateFileLocation
+
+        def reset(self, env):
+            super(SetSaveStateFolderWrapper, self).reset(env)
+
+        def loadSaveStateFile(self):
+            self.unwrapped.loadStateFromFile = True
+
+        def reloadSaveStateFile(self):
+            self.unwrapped.reloadState = True
+
+        def saveToStateFile(self):
+            self.unwrapped.saveState = True
+        
+        def _step(self, action):
+        # This is where we should intercept stuck and reset?
+            observation, reward, done, info = self.env.step(action)
+            return observation, reward, done, info
             
     return SetSaveStateFolderWrapper
