@@ -375,6 +375,11 @@ end;
 -- ===========================
 --      ** SAVE STATE **
 -- ===========================
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
 function load_saved_state_from_disk(filename)
    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
    if (file_exists(filename)) then
@@ -410,10 +415,6 @@ function reload_saved_state(saveBuffer)
    end;
 end;
 
-function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
-end
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
 -- Only returning values that have changed since last update
