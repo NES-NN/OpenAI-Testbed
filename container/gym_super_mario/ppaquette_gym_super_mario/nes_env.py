@@ -283,6 +283,9 @@ class NesEnv(gym.Env, utils.EzPickle):
         #State save/load -- uses strange "flag for method call" convention
         if self.loadStateFromFile:
             logger.info("load state from file command raised")
+            if not os.path.isfile(self.stateFileLocation):
+                raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.stateFileLocation))
+
             self.loadState(self.stateFileLocation)
             self.loadStateFromFile = False
 

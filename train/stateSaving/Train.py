@@ -109,6 +109,7 @@ if __name__ == "__main__":
 
     #Since we are using the same save state file for all runs, 
     #this loads that file and state now.
+    #This must be called else the save state will crash.
     smb_env.loadSaveStateFile()
 
     random_moves(smb_env)
