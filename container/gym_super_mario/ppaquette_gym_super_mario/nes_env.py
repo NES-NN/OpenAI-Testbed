@@ -281,23 +281,10 @@ class NesEnv(gym.Env, utils.EzPickle):
             return self._get_state(), 0, self._get_is_finished(), {}
 
         #State save/load -- uses strange "flag for method call" convention
-        if self.loadStateFromFile:
-            logger.info("load state from file command raised")
-            if not os.path.isfile(self.stateFileLocation):
-                raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.stateFileLocation))
-
-            self.loadState(self.stateFileLocation)
-            self.loadStateFromFile = False
-
         if self.saveState:
             logger.info("save game state command raised")
             self.saveGameState()
             self.saveState = False
-
-        if self.reloadState:
-            logger.info("reload last saved game state raised")
-            self.reloadLastSavedState()
-            self.reloadState = False
 
         if NUM_ACTIONS != len(action):
             logger.warn('NES action list must contain %d items. Padding missing items with 0' % NUM_ACTIONS)

@@ -378,7 +378,7 @@ end;
 function load_saved_state_from_disk(filename)
    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
    saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
-   savestate.load(saveBuffer);
+   --savestate.load(saveBuffer); --we'll use reload_saved_state to load
    return saveBuffer;
 end;
 
@@ -748,6 +748,7 @@ function parse_commands(line)
 	elseif "load" == command then
         --might be good to validate that data
         lastSaveBuffer = load_saved_state_from_disk(data)
+		is_reload = 1; --queue load on next restart
 	elseif "save" == command then
         --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
