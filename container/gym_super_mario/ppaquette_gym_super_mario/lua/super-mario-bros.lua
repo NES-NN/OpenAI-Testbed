@@ -154,7 +154,8 @@ addr_tiles = 0x500;
 -- ===========================
 --         SaveBuffers
 -- ===========================
-lastSaveBuffer = nil
+lastSaveBuffer = nil;
+is_reload = 0;
 
 -- ===========================
 --         Functions
@@ -393,6 +394,7 @@ end;
 function reload_saved_state(saveBuffer)
     gui.text(50,50, "reload_saved_state called");
     savestate.load(saveBuffer);
+	is_reload = 0;
 end;
 
 
@@ -750,15 +752,9 @@ function parse_commands(line)
         --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
 	elseif "reload" == command then	
-        --good to add a nil check
-        --using part of change levels to reset STATE
-        is_started = 0;
-        is_finished = 0;
-        changing_level = 0;
-        reset_vars();
-        emu.softreset();
-        --end using part of change levels to reset STATE
-        reload_saved_state(lastSaveBuffer)
+        --good to add a nil check      
+        is_reload = 1;
+        
     end;
     return;
 end;
@@ -868,6 +864,10 @@ function main_loop()
     end;
     running_thread = 1;
     local framecount = emu.framecount();
+	if is_reload == 1 then
+		reload_saved_state(lastSaveBuffer)
+	end;
+
 
     -- Checking if game is started or is finished
     if is_started == 0 then
