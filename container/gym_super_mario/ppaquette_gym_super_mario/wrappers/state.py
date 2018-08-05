@@ -11,7 +11,7 @@ def SetSaveStateFolder(stateFileLocation):
             State wrapper to set the path to the save game state 
         """
         def __init__(self, env):
-            super(SetPlayingModeWrapper, self).__init__(env)
+            super(SetSaveStateFolderWrapper, self).__init__(env)
            
             if not os.path.isfile(stateFileLocation):
                 logger.info("Could not load save file!")
