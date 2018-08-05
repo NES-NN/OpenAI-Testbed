@@ -36,17 +36,16 @@ def random_moves(env):
         experiment_infos = []
 
         while (child_run < args.childrenCount):    
-            observation = env.reset()
-            #In some ways this is a reset. 
-            #If we could have params, maybe an env.reset('saveStateId')
-            #Would be better.  Oh, and add support for multi save files too!
 
+            #reload method just queues a load of the state on next reset.
             env.reloadSaveStateFile() 
-
+            observation = env.reset()
+            
             done = False
             t = 0
             last_distance = 0;
             strike = 0;
+            best_distance = 0;
 
             while not done:
                 # Choose random action
@@ -64,13 +63,16 @@ def random_moves(env):
                     strike += 1
                 else:        
                     strike = 0
-
-                if (strike > 10): 
-                    #save now, would have been better to save BEFORE his is stuck.
-                    env.saveToStateFile()
+                    
+                if (strike > 10):                     
                     done = True
                 
                 last_distance = info.get('distance')
+                if (best_distance < last_distance):
+                    best_distance = last_distance
+                    if (best_distance % 25 == 1): #save every 25 step gain
+                        logger.info("New Best distance {}... saving again".format(best_distance))
+                        env.saveToStateFile()
 
             child_run += 1
             logger.info("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))

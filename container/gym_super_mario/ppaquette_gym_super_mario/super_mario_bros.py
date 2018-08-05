@@ -283,8 +283,8 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         # Format: data_<frame>#name_1:value_1|name_2:value_2|...
         if frame_number <= self.last_frame or self.info is None:
             return
-        if frame_number % 300 == 1:
-            logger.info("Frame {}... need to save again".format(frame_number))
+       # if frame_number % 300 == 1:
+        #    logger.info("Frame {}... need to save again".format(frame_number))
             #self.saveState = True
         parts = data.split('|')
         for part in parts:
@@ -299,12 +299,12 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
                 self.reward = value - self.info[name]
                 self.episode_reward = value
                 self.info[name] = value
-                if (value - self.lastDistance) < 10:
-                    self.noProgress += 1
-                    logger.info("No progress detected..")
-                if self.noProgress == 10:
-                    self.noProgress = 0
-                    logger.info("Stuck detected... need to reload")
+               # if (value - self.lastDistance) < 10:
+                #    self.noProgress += 1
+                 #   logger.info("No progress detected..")
+                #if self.noProgress == 10:
+                 #   self.noProgress = 0
+                  #  logger.info("Stuck detected... need to reload")
                     #self.reloadState = True
 
                 self.lastDistance = value

@@ -378,7 +378,7 @@ end;
 function load_saved_state_from_disk(filename)
    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
    saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
-   savestate.load(saveBuffer);
+  -- savestate.load(saveBuffer);
    return saveBuffer;
 end;
 
@@ -865,7 +865,7 @@ function main_loop()
     running_thread = 1;
     local framecount = emu.framecount();
 	if is_reload == 1 then
-		reload_saved_state(lastSaveBuffer)
+		reload_saved_state(lastSaveBuffer);
 	end;
 
 
