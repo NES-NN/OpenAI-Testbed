@@ -39,7 +39,8 @@ def random_moves(env):
 
             
             #env.reloadSaveStateFile()  --not supported in gym env.
-            env.loadSaveStateFile() #loads current state file, reset will load it.
+            env.loadSaveStateFile() #passes the saveState filename to lua, the reset command will
+            #trigger the loading of the state file.
 
             observation = env.reset()
             

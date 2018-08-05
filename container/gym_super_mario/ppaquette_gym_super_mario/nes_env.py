@@ -392,6 +392,9 @@ class NesEnv(gym.Env, utils.EzPickle):
      
     def loadState(self, path=''):      
         logger.info("load state from file command sent to pipe")
+        #Silly to write to pipe since lua will be reset soon!
+        #use something like: self.launch_vars['stateFileToLoad'] = path
+
         self._write_to_pipe('load#'+ path)
 
     def saveGameState(self):        

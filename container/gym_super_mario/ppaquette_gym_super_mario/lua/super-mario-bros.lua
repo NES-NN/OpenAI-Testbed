@@ -887,6 +887,7 @@ function main_loop()
     running_thread = 1;
     local framecount = emu.framecount();
 
+	--this will only work if we used "Launch_vars"!
 	if is_reload == 1 then
 		lastSaveBuffer = load_saved_state_from_disk(data)
 		reload_saved_state(lastSaveBuffer);
