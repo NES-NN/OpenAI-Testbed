@@ -92,4 +92,7 @@ if __name__ == "__main__":
 
     smb_env = gym.make(game_name)
     
+    wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
+    env = wrapper(env)
+
     random_moves(smb_env)
