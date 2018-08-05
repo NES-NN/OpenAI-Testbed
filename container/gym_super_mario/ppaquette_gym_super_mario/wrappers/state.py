@@ -21,17 +21,15 @@ def SetSaveStateFolder(stateFileLocation):
 
         def reset(self):
             #LoadState
-            if self.unwrapped.loadStateFromFile:
-                self.unwrapped.logger.info("load state from file command raised")
-            if not os.path.isfile(self.unwrapped.stateFileLocation):
-                raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.unwrapped.stateFileLocation))
+            if self.unwrapped.loadStateFromFile:                
+                if not os.path.isfile(self.unwrapped.stateFileLocation):
+                    raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.unwrapped.stateFileLocation))
 
-            self.unwrapped.loadState(self.stateFileLocation)
-            self.unwrapped.loadStateFromFile = False
+                self.unwrapped.loadState(self.stateFileLocation)
+                self.unwrapped.loadStateFromFile = False
 
             #Reload state
-            if self.unwrapped.reloadState:
-                self.unwrapped.logger.info("reload last saved game state raised")
+            if self.unwrapped.reloadState:                
                 self.unwrapped.reloadLastSavedState()
                 self.unwrapped.reloadState = False
 

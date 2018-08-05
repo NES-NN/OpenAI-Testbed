@@ -390,13 +390,16 @@ class NesEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
      
-    def loadState(self, path=''):        
+    def loadState(self, path=''):      
+        logger.info("load state from file command sent to pipe")
         self._write_to_pipe('load_'+ path)
 
     def saveGameState(self):        
+        logger.info("save sent to pipe")
         self._write_to_pipe('save')
 
-    def reloadLastSavedState(self):        
+    def reloadLastSavedState(self):  
+        logger.info("reload last saved game state sent to pipe")
         self._write_to_pipe('reload')
 
     def close(self):
