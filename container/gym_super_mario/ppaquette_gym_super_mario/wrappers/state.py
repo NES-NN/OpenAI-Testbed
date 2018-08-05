@@ -1,4 +1,5 @@
 import gym
+import os
 
 __all__ = ['SetSaveStateFolder']
 
@@ -14,10 +15,7 @@ def SetSaveStateFolder(stateFileLocation):
             super(SetSaveStateFolderWrapper, self).__init__(env)
            
             if not os.path.isfile(stateFileLocation):
-                logger.info("Could not load save file!")
                 raise gym.error.Error('Error - Could not load save file! "{}" '.format(stateFileLocation))
-            else:
-                logger.info("state save file found.")
                 
             self.unwrapped.stateFileLocation = stateFileLocation
             
