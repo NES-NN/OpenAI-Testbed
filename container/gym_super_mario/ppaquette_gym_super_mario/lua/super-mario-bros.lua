@@ -400,9 +400,14 @@ function snapshot_and_save_to_disk(saveBuffer)
 end;
 
 function reload_saved_state(saveBuffer)
+	if (saveBuffer == nil) then
+		gui.text(50,50, "cannot reload saved buffer :(");
+		emu.pause(); --make it obvious there is an error
+   else
     gui.text(50,50, "reload_saved_state called");
     savestate.load(saveBuffer);
 	is_reload = 0;
+   end;
 end;
 
 function file_exists(name)
