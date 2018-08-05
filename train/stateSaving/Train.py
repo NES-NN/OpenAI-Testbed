@@ -7,6 +7,9 @@ import csv
 import os
 import logging
 import sys
+
+from ppaquette_gym_super_mario.wrappers import *
+
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
@@ -93,6 +96,6 @@ if __name__ == "__main__":
     smb_env = gym.make(game_name)
     
     wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
-    env = wrapper(env)
+    smb_env = wrapper(smb_env)
 
     random_moves(smb_env)
