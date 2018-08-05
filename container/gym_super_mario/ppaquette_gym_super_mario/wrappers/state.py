@@ -28,10 +28,10 @@ def SetSaveStateFolder(stateFileLocation):
                 self.unwrapped.loadState(self.unwrapped.stateFileLocation)
                 self.unwrapped.loadStateFromFile = False
 
-            #Reload state
-            if self.unwrapped.reloadState:                
-                self.unwrapped.reloadLastSavedState()
-                self.unwrapped.reloadState = False
+            #Reload state -reload not supported since need to do a full load always!
+            #if self.unwrapped.reloadState:                
+            #    self.unwrapped.reloadLastSavedState()
+            #    self.unwrapped.reloadState = False
 
             return self.env.reset()
 

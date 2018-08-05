@@ -37,8 +37,10 @@ def random_moves(env):
 
         while (child_run < args.childrenCount):    
 
-            #reload method just queues a load of the state on next reset.
-            env.reloadSaveStateFile() 
+            
+            #env.reloadSaveStateFile()  --not supported in gym env.
+            env.loadSaveStateFile() #loads current state file, reset will load it.
+
             observation = env.reset()
             
             done = False
@@ -106,10 +108,5 @@ if __name__ == "__main__":
     #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
     wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
     smb_env = wrapper(smb_env)
-
-    #Since we are using the same save state file for all runs, 
-    #this loads that file and state now.
-    #This must be called else the save state will crash.
-    smb_env.loadSaveStateFile()
-
+    
     random_moves(smb_env)

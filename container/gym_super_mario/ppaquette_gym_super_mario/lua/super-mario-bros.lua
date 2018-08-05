@@ -888,6 +888,7 @@ function main_loop()
     local framecount = emu.framecount();
 
 	if is_reload == 1 then
+		lastSaveBuffer = load_saved_state_from_disk(data)
 		reload_saved_state(lastSaveBuffer);
 	end;
 
