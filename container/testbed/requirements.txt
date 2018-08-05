@@ -1,0 +1,8 @@
+matplotlib
+numpy
+scipy
+neat-python
+argparse
+colour
+click
+pandas==0.22.0
