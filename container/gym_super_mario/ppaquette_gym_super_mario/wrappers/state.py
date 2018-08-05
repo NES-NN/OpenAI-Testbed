@@ -25,7 +25,7 @@ def SetSaveStateFolder(stateFileLocation):
                 if not os.path.isfile(self.unwrapped.stateFileLocation):
                     raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.unwrapped.stateFileLocation))
 
-                self.unwrapped.loadState(self.stateFileLocation)
+                self.unwrapped.loadState(self.unwrapped.stateFileLocation)
                 self.unwrapped.loadStateFromFile = False
 
             #Reload state
