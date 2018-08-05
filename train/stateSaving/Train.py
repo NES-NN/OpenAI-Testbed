@@ -37,6 +37,11 @@ def random_moves(env):
 
         while (child_run < args.childrenCount):    
             observation = env.reset()
+            #In some ways this is a reset. 
+            #If we could have params, maybe an env.reset('saveStateId')
+            #Would be better.  Oh, and add support for multi save files too!
+
+            env.reloadSaveStateFile() 
 
             done = False
             t = 0
@@ -60,8 +65,9 @@ def random_moves(env):
                 else:        
                     strike = 0
 
-                if (strike > 30): #now that the gym catches the stuck state, this doesn't make sense. 
-                    #however leaving it at 3 would mean killing it before the gym state reload kicks in.
+                if (strike > 10): 
+                    #save now, would have been better to save BEFORE his is stuck.
+                    env.saveToStateFile()
                     done = True
                 
                 last_distance = info.get('distance')
