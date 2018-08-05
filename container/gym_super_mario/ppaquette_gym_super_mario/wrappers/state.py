@@ -19,8 +19,8 @@ def SetSaveStateFolder(stateFileLocation):
                 
             self.unwrapped.stateFileLocation = stateFileLocation
 
-        def reset(self, env):
-            super(SetSaveStateFolderWrapper, self).reset(env)
+        def reset(self):
+            return self.env.reset()
 
         def loadSaveStateFile(self):
             self.unwrapped.loadStateFromFile = True
