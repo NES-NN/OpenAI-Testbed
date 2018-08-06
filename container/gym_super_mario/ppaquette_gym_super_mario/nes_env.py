@@ -87,6 +87,9 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.curr_seed = 0
         self._seed()
 
+        # Should Save game State on next step
+        self.saveState = False
+
     def _configure(self, rom_path=None, lock=None):
         if rom_path is not None:
             self.rom_path = rom_path
@@ -382,8 +385,11 @@ class NesEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
-     
-  
+
+            
+    def saveGameState(self):        
+        logger.info("save sent to pipe")
+        self._write_to_pipe('save')
 
     def close(self):
         self.is_exiting = 1

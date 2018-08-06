@@ -291,8 +291,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
 
         #saveState
         self._stateFileLocation = ''  
-        self.loadStateFromFile = False
-        self.saveState = False
+        self.loadStateFromFile = False        
         self.reloadState = False
     
     def _process_reset_message(self):
@@ -307,10 +306,6 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.launch_vars['is_reload'] = 1 #always reload when file changed
         #Silly to write to pipe since lua will be reset soon!
         #self._write_to_pipe('load#'+ path)
-
-    def saveGameState(self):        
-        logger.info("save sent to pipe")
-        self._write_to_pipe('save')
 
        #reload not supported 
    # def reloadLastSavedState(self):  
