@@ -189,7 +189,8 @@ class SuperMarioBrosEnv(NesEnv):
         return None
 
     def _process_pipe_message(self, message):
-        logger.info(message);
+        #keep this logger for debugging 
+        #logger.info(message);
         # Parsing
         parts = message.split('#')
         header = parts[0] if len(parts) > 0 else ''
