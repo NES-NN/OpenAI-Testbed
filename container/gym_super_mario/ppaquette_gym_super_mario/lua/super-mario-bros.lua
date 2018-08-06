@@ -385,12 +385,14 @@ function load_saved_state_from_disk(filename)
 	gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
 	
    if (file_exists(filename)) then	
-	saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
+	saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
+	savestate.load(saveBuffer); 
+	is_reload = 0;
    else 
 	gui.text(50,50, "could not find file:" .. filename);
 	emu.pause(); --make it obvious there is an error
    end;
-   savestate.load(saveBuffer); 
+   
    return saveBuffer;
 end;
 
