@@ -26,7 +26,7 @@ def SetSaveStateFolder(stateFileLocation):
                     raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.unwrapped.stateFileLocation))
                 
                 self.unwrapped.loadState(self.unwrapped.stateFileLocation)
-                #self.unwrapped.loadStateFromFile = False
+                self.unwrapped.loadStateFromFile = False #done so reset flag
 
             #Reload state -reload not supported since need to do a full load always!
             #if self.unwrapped.reloadState:                
@@ -44,9 +44,10 @@ def SetSaveStateFolder(stateFileLocation):
         def saveToStateFile(self):
             self.unwrapped.saveState = True
         
-        def _step(self, action):
         # This is where we should intercept stuck and reset?
-            observation, reward, done, info = self.env.step(action)
-            return observation, reward, done, info
+        #def _step(self, action):
+        
+        #   observation, reward, done, info = self.env.step(action)
+        #   return observation, reward, done, info
             
     return SetSaveStateFolderWrapper
