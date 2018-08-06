@@ -891,13 +891,14 @@ function main_loop()
         return;
     end;
     running_thread = 1;
-    local framecount = emu.framecount();
-
+    
 	--load saved state if not already loaded.
 	if stateFileToLoad ~= "" and (is_reload == 1) then
 		lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);		
 	end;
 
+	--load state likely messes with framecount, so moving below
+	local framecount = emu.framecount();
 
     -- Checking if game is started or is finished
     if is_started == 0 then
