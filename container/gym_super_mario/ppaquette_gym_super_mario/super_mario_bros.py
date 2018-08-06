@@ -302,6 +302,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
 
     def loadState(self, path=''):      
         logger.info("set launch_vars for next reset to load state file.")
+        logger.info("Set state file path to: {}".format(path)) 
         self.launch_vars['stateFileToLoad'] = path
         self.launch_vars['is_reload'] = 1 #always reload when file changed
         #Silly to write to pipe since lua will be reset soon!
