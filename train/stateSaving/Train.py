@@ -111,6 +111,6 @@ if __name__ == "__main__":
     #game was going too fast for me via remote connection (3200%!)
     wrapper2 = SetPlayingMode('normal')
 
-    smb_env = wrapper2(wrapper(smb_env))
+    smb_env = wrapper(wrapper2(smb_env))
 
     random_moves(smb_env)
