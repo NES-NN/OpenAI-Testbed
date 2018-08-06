@@ -256,6 +256,11 @@ function get_life()
     return life;
 end;
 
+-- set_life - sets lives to 3
+function set_life()
+    memory.writebyte(addr_life, 2); --2 since 0 based    
+end;
+
 -- get_score - Returns the current player score (0 to 999990)
 function get_score()
     return tonumber(readbyterange(addr_score, 6));
@@ -387,6 +392,9 @@ function load_saved_state_from_disk(filename)
    if (file_exists(filename)) then	
 	saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
 	savestate.load(saveBuffer); 
+	--memory hack since this script thinks any saved state with lives < 3 means mario is dead!
+	set_life();
+
 	is_reload = 0;
    else 
 	gui.text(50,50, "could not find file:" .. filename);
