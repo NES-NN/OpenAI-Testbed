@@ -382,52 +382,50 @@ end;
 --      ** SAVE STATE **
 -- ===========================
 function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
+    local f=io.open(name,"r")
+    if f~=nil then io.close(f) return true else return false end
 end
 
 function load_saved_state_from_disk(filename)   
-	gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
-	
-   if (file_exists(filename)) then	
-	saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
-	savestate.load(saveBuffer); 
-	--memory hack since this script thinks any saved state with lives < 3 means mario is dead!
-	set_life();
+    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
+    
+    if (file_exists(filename)) then
+        saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
+        savestate.load(saveBuffer); 
+        --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
+        set_life();
 
-	is_reload = 0;
-   else 
-	gui.text(50,50, "could not find file:" .. filename);
-	emu.pause(); --make it obvious there is an error
-   end;
-   
-   return saveBuffer;
+        is_reload = 0;
+    else
+        gui.text(50,50, "could not find file:" .. filename);
+        emu.pause(); --make it obvious there is an error
+    end;
+    return saveBuffer;
 end;
 
 function snapshot_and_save_to_disk(saveBuffer)
-   if (saveBuffer == nil) then
-	gui.text(50,50, "cannot save, lost buffer :(");
-	emu.pause(); --make it obvious there is an error
-   else
-	gui.text(50,50, "snapshot_and_save_to_disk called");
-	savestate.save(saveBuffer);
-	savestate.persist(saveBuffer);	
-   end;
-   
+    if (saveBuffer == nil) then
+        gui.text(50,50, "cannot save, lost buffer :(");
+        emu.pause(); --make it obvious there is an error
+    else
+        gui.text(50,50, "snapshot_and_save_to_disk called");
+        savestate.save(saveBuffer);
+        savestate.persist(saveBuffer);
+    end;
 end;
 
 function reload_saved_state(saveBuffer)
-	if (saveBuffer == nil) then
-		gui.text(50,50, "cannot reload saved buffer :(");
-		emu.pause(); --make it obvious there is an error
-   else
-    gui.text(50,50, "reload_saved_state called");
-	emu.pause();
-    savestate.load(saveBuffer);
-	is_reload = 0;
+    if (saveBuffer == nil) then
+        gui.text(50,50, "cannot reload saved buffer :(");
+        emu.pause(); --make it obvious there is an error
+    else
+        gui.text(50,50, "reload_saved_state called");
+        emu.pause();
+        savestate.load(saveBuffer);
+
+        is_reload = 0;
    end;
 end;
-
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
 -- Only returning values that have changed since last update
@@ -776,20 +774,20 @@ function parse_commands(line)
     elseif "exit" == command then
         close_pipes();
         os.exit()
-	elseif "load" == command then
+    elseif "load" == command then
         --might be good to validate that data
         lastSaveBuffer = load_saved_state_from_disk(data)
-		is_reload = 1; --queue load on next restart
-		gui.text(50,50, "load pipe is not supported:" .. filename);
-		emu.pause();
-	elseif "save" == command then
+        is_reload = 1; --queue load on next restart
+        gui.text(50,50, "load pipe is not supported:" .. filename);
+        emu.pause();
+    elseif "save" == command then
         --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
-	elseif "reload" == command then	
+    elseif "reload" == command then    
         --good to add a nil check      
         is_reload = 1;
-		gui.text(50,50, "reload pipe is not supported");
-		emu.pause();
+        gui.text(50,50, "reload pipe is not supported");
+        emu.pause();
         
     end;
     return;
@@ -900,13 +898,13 @@ function main_loop()
     end;
     running_thread = 1;
     
-	--load saved state if not already loaded.
-	if stateFileToLoad ~= "" and (is_reload == 1) then
-		lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);		
-	end;
+    --load saved state if not already loaded.
+    if stateFileToLoad ~= "" and (is_reload == 1) then
+        lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);        
+    end;
 
-	--load state likely messes with framecount, so moving below
-	local framecount = emu.framecount();
+    --load state likely messes with framecount, so moving below
+    local framecount = emu.framecount();
 
     -- Checking if game is started or is finished
     if is_started == 0 then
