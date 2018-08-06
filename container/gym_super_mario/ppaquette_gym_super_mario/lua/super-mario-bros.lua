@@ -27,6 +27,7 @@ meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
 stateFileToLoad = stateFileToLoad or "";
+is_reload = tonumber(is_reload) or 0;
 
 -- Parsing world
 if target then
@@ -156,7 +157,6 @@ addr_tiles = 0x500;
 --         SaveBuffers
 -- ===========================
 lastSaveBuffer = nil;
-is_reload = 0;
 
 -- ===========================
 --         Functions

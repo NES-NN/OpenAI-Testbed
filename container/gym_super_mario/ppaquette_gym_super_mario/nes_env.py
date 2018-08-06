@@ -391,7 +391,7 @@ class NesEnv(gym.Env, utils.EzPickle):
             self.viewer.imshow(img)
      
     def loadState(self, path=''):      
-        logger.info("set state file path in launch_vars")
+        logger.info("deprecated: set state file path in launch_vars")
         #Silly to write to pipe since lua will be reset soon!
         #use something like: 
         self.launch_vars['stateFileToLoad'] = path

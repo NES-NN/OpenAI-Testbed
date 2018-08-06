@@ -270,48 +270,25 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
         std_reward = max(0, std_reward)  # Cannot be less than 0
         return std_reward
 
-class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):    
+class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):  
+    @property
+    def stateFileLocation(self):
+        return self._stateFileLocation
+
+    @stateFileLocation.setter
+    def stateFileLocation(self, value):
+        self._stateFileLocation = value
+        logger.info("Set state file path to: {}".format(value))        
+        self.launch_vars['stateFileToLoad'] = value
+        self.launch_vars['is_reload'] = value #always reload when file changed
+
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
-        #self.loadStateFromFile = True
+        self._stateFileLocation = ''  
         self.noProgress = 0
         self.lastDistance = 0
     
-       
-    def _process_data_message(self, frame_number, data):        
-        # Format: data_<frame>#name_1:value_1|name_2:value_2|...
-        if frame_number <= self.last_frame or self.info is None:
-            return
-       # if frame_number % 300 == 1:
-        #    logger.info("Frame {}... need to save again".format(frame_number))
-            #self.saveState = True
-        parts = data.split('|')
-        for part in parts:
-            if part.find(':') == -1:
-                continue
-            parts_2 = part.split(':')
-            name = parts_2[0]
-            value = int(parts_2[1])
-            if 'is_finished' == name:
-                self.is_finished = bool(value)
-            elif 'distance' == name:
-                self.reward = value - self.info[name]
-                self.episode_reward = value
-                self.info[name] = value
-               # if (value - self.lastDistance) < 10:
-                #    self.noProgress += 1
-                 #   logger.info("No progress detected..")
-                #if self.noProgress == 10:
-                 #   self.noProgress = 0
-                  #  logger.info("Stuck detected... need to reload")
-                    #self.reloadState = True
-
-                self.lastDistance = value
-
-            else:
-                self.info[name] = value
-
     def _process_reset_message(self):
         logger.info("resetting progress state")
         self.noProgress = 0
