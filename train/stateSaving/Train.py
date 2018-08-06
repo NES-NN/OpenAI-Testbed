@@ -67,11 +67,11 @@ def random_moves(env):
                 else:        
                     strike = 0
                     
-                if (strike > 10):                     
+                if (strike > 6):                     
                     done = True
                 
                 last_distance = info.get('distance') 
-                if ((last_distance - best_distance) > 25):  #save every 25 step gain
+                if ((last_distance - best_distance) > 50):  #save every 50 step gain
                     best_distance = last_distance
                     logger.info("New Best distance {}... saving again".format(best_distance))
                     env.saveToStateFile()
