@@ -71,7 +71,7 @@ def random_moves(env):
                     done = True
                 
                 last_distance = info.get('distance') 
-                if ((best_distance - info.get('distance')) > 25):  #save every 25 step gain
+                if ((last_distance - best_distance) > 25):  #save every 25 step gain
                     best_distance = last_distance
                     logger.info("New Best distance {}... saving again".format(best_distance))
                     env.saveToStateFile()
