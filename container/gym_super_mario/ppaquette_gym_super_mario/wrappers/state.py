@@ -19,7 +19,7 @@ def SetSaveStateFolder(stateFileLocation):
                 
             self.unwrapped.stateFileLocation = stateFileLocation
 
-        def reset(self):
+        def reset(self, **kwargs):
             #LoadState
             if self.unwrapped.loadStateFromFile:                
                 if not os.path.isfile(self.unwrapped.stateFileLocation):
@@ -33,7 +33,7 @@ def SetSaveStateFolder(stateFileLocation):
             #    self.unwrapped.reloadLastSavedState()
             #    self.unwrapped.reloadState = False
 
-            return self.env.reset()
+            return self.env.reset(**kwargs)
 
         def loadSaveStateFile(self):
             self.unwrapped.loadStateFromFile = True

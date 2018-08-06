@@ -16,7 +16,7 @@ def SetPlayingMode(target_mode):
                 raise gym.error.Error('Error - The mode "{}" is not supported. Supported options are "algo", "normal" or "human"'.format(target_mode))
             self.unwrapped.mode = target_mode
 
-        def reset(self, env):
-            super(SetPlayingModeWrapper, self).reset(env)
+        def reset(self, **kwargs):
+            self.env.reset(**kwargs)
 
     return SetPlayingModeWrapper
