@@ -383,15 +383,14 @@ end
 
 function load_saved_state_from_disk(filename)   
 	gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
-	emu.pause();
-   if (file_exists(filename)) then
 	
+   if (file_exists(filename)) then	
 	saveBuffer = savestate.create(filename); --"/home/jasonlan/test.fcs"
    else 
 	gui.text(50,50, "could not find file:" .. filename);
 	emu.pause(); --make it obvious there is an error
    end;
-   --savestate.load(saveBuffer); --we'll use reload_saved_state to load
+   savestate.load(saveBuffer); 
    return saveBuffer;
 end;
 
@@ -413,7 +412,7 @@ function reload_saved_state(saveBuffer)
 		emu.pause(); --make it obvious there is an error
    else
     gui.text(50,50, "reload_saved_state called");
-	
+	emu.pause();
     savestate.load(saveBuffer);
 	is_reload = 0;
    end;
@@ -894,8 +893,7 @@ function main_loop()
 
 	--load saved state if not already loaded.
 	if stateFileToLoad ~= "" and (is_reload == 1) then
-		lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);
-		reload_saved_state(lastSaveBuffer);
+		lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);		
 	end;
 
 
