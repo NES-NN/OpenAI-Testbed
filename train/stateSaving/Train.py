@@ -36,12 +36,19 @@ def random_moves(env):
         experiment_infos = []
 
         while (child_run < args.childrenCount):    
-            observation = env.reset()
 
+            
+            #env.reloadSaveStateFile()  --not supported in gym env.
+            env.loadSaveStateFile() #passes the saveState filename to lua, the reset command will
+            #trigger the loading of the state file.
+
+            observation = env.reset()
+            
             done = False
             t = 0
             last_distance = 0;
             strike = 0;
+            best_distance = 0;
 
             while not done:
                 # Choose random action
@@ -59,12 +66,15 @@ def random_moves(env):
                     strike += 1
                 else:        
                     strike = 0
-
-                if (strike > 30): #now that the gym catches the stuck state, this doesn't make sense. 
-                    #however leaving it at 3 would mean killing it before the gym state reload kicks in.
+                    
+                if (strike > 6):                     
                     done = True
                 
-                last_distance = info.get('distance')
+                last_distance = info.get('distance') 
+                if ((last_distance - best_distance) > 50):  #save every 50 step gain
+                    best_distance = last_distance
+                    logger.info("New Best distance {}... saving again".format(best_distance))
+                    env.saveToStateFile()
 
             child_run += 1
             logger.info("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))
@@ -97,10 +107,10 @@ if __name__ == "__main__":
     
     #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
     wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
-    smb_env = wrapper(smb_env)
 
-    #Since we are using the same save state file for all runs, 
-    #this loads that file and state now.
-    smb_env.loadSaveStateFile()
+    #game was going too fast for me via remote connection (3200%!)
+    wrapper2 = SetPlayingMode('normal')
+
+    smb_env = wrapper(wrapper2(smb_env))
 
     random_moves(smb_env)
