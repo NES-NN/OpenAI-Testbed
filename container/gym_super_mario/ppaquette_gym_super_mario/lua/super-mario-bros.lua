@@ -413,7 +413,7 @@ function reload_saved_state(saveBuffer)
 		emu.pause(); --make it obvious there is an error
    else
     gui.text(50,50, "reload_saved_state called");
-	emu.pause();
+	
     savestate.load(saveBuffer);
 	is_reload = 0;
    end;
