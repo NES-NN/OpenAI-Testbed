@@ -771,12 +771,16 @@ function parse_commands(line)
         --might be good to validate that data
         lastSaveBuffer = load_saved_state_from_disk(data)
 		is_reload = 1; --queue load on next restart
+		gui.text(50,50, "load pipe is not supported:" .. filename);
+		emu.pause();
 	elseif "save" == command then
         --might be good to validate that data
         snapshot_and_save_to_disk(lastSaveBuffer)
 	elseif "reload" == command then	
         --good to add a nil check      
         is_reload = 1;
+		gui.text(50,50, "reload pipe is not supported");
+		emu.pause();
         
     end;
     return;
@@ -888,9 +892,9 @@ function main_loop()
     running_thread = 1;
     local framecount = emu.framecount();
 
-	--this will only work if we used "Launch_vars"!
-	if stateFileToLoad ~= "" then
-		lastSaveBuffer = load_saved_state_from_disk(data)
+	--load saved state if not already loaded.
+	if stateFileToLoad ~= "" and (is_reload == 1) then
+		lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);
 		reload_saved_state(lastSaveBuffer);
 	end;
 
