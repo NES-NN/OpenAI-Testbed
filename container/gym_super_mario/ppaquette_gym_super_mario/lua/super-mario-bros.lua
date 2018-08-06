@@ -26,6 +26,7 @@ draw_tiles = tonumber(draw_tiles) or 0;
 meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
+stateFileToLoad = stateFileToLoad or "";
 
 -- Parsing world
 if target then
@@ -888,7 +889,7 @@ function main_loop()
     local framecount = emu.framecount();
 
 	--this will only work if we used "Launch_vars"!
-	if is_reload == 1 then
+	if stateFileToLoad ~= "" then
 		lastSaveBuffer = load_saved_state_from_disk(data)
 		reload_saved_state(lastSaveBuffer);
 	end;
