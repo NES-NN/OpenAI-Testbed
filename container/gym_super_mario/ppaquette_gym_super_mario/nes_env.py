@@ -87,13 +87,6 @@ class NesEnv(gym.Env, utils.EzPickle):
         self.curr_seed = 0
         self._seed()
 
-        #saveState
-        self.loadStateFromFile = False
-        
-       
-        self.saveState = False
-        self.reloadState = False
-
     def _configure(self, rom_path=None, lock=None):
         if rom_path is not None:
             self.rom_path = rom_path
@@ -390,22 +383,7 @@ class NesEnv(gym.Env, utils.EzPickle):
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
      
-    def loadState(self, path=''):      
-        logger.info("deprecated: set state file path in launch_vars")
-        #Silly to write to pipe since lua will be reset soon!
-        #use something like: 
-        self.launch_vars['stateFileToLoad'] = path
-
-        #self._write_to_pipe('load#'+ path)
-
-    def saveGameState(self):        
-        logger.info("save sent to pipe")
-        self._write_to_pipe('save')
-
-       #reload not supported 
-   # def reloadLastSavedState(self):  
-    #    logger.info("reload last saved game state sent to pipe")
-     #   self._write_to_pipe('reload')
+  
 
     def close(self):
         self.is_exiting = 1

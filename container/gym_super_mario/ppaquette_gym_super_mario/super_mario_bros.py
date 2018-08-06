@@ -280,16 +280,38 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self._stateFileLocation = value
         logger.info("Set state file path to: {}".format(value))        
         self.launch_vars['stateFileToLoad'] = value
-        self.launch_vars['is_reload'] = value #always reload when file changed
+        self.launch_vars['is_reload'] = 1  #always reload when file changed
 
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
-        self._stateFileLocation = ''  
+        
         self.noProgress = 0
         self.lastDistance = 0
+
+        #saveState
+        self._stateFileLocation = ''  
+        self.loadStateFromFile = False
+        self.saveState = False
+        self.reloadState = False
     
     def _process_reset_message(self):
         logger.info("resetting progress state")
         self.noProgress = 0
         self.lastDistance = 0
+
+    def loadState(self, path=''):      
+        logger.info("deprecated: use stateFileLocation property for now")
+        self.launch_vars['stateFileToLoad'] = path
+        self.launch_vars['is_reload'] = 1 #always reload when file changed
+        #Silly to write to pipe since lua will be reset soon!
+        #self._write_to_pipe('load#'+ path)
+
+    def saveGameState(self):        
+        logger.info("save sent to pipe")
+        self._write_to_pipe('save')
+
+       #reload not supported 
+   # def reloadLastSavedState(self):  
+    #    logger.info("reload last saved game state sent to pipe")
+     #   self._write_to_pipe('reload')
