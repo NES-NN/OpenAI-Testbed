@@ -70,12 +70,11 @@ def random_moves(env):
                 if (strike > 10):                     
                     done = True
                 
-                last_distance = info.get('distance')
-                if (best_distance < last_distance):
+                last_distance = info.get('distance') 
+                if ((best_distance - info.get('distance')) > 25):  #save every 25 step gain
                     best_distance = last_distance
-                    if (best_distance % 25 == 1): #save every 25 step gain
-                        logger.info("New Best distance {}... saving again".format(best_distance))
-                        env.saveToStateFile()
+                    logger.info("New Best distance {}... saving again".format(best_distance))
+                    env.saveToStateFile()
 
             child_run += 1
             logger.info("Mock Child Run: {} of Gen: {} completed.".format(child_run, experiment))
