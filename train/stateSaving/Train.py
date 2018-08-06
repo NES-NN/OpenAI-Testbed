@@ -108,5 +108,9 @@ if __name__ == "__main__":
     #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
     wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
     smb_env = wrapper(smb_env)
-    
+
+    #game was going too fast for me via remote connection (3200%!)
+    wrapper2 = SetPlayingMode('normal')
+    smb_env = wrapper2(smb_env)
+
     random_moves(smb_env)
