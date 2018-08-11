@@ -418,6 +418,8 @@ function snapshot_and_save_to_disk(saveBuffer)
 		infile = io.open(saveStateFolder,"rb");
 		source_content = infile:read("*all")
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
+		gui.text(50,50, new_saved_state_file);
+        emu.pause(); --make it obvious there is an error
 		file = io.open(new_saved_state_file, "wb")
 		file:write(source_content)
 		file:close();
