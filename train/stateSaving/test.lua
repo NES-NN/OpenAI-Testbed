@@ -19,7 +19,7 @@ while true do
 
 		--lets copy that file, but rename it according to frameNumber
 		infile = io.open(filename,"rb");
-		source_content = io.read("*all")
+		source_content = infile:read("*all")
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. frameNumber .. ".fcs"
 		file = io.open(new_saved_state_file, "wb")
 		file:write(source_content)
