@@ -15,6 +15,14 @@ while true do
      if (frameNumber % 400 == 0) then
         savestate.save(saveObject);
         savestate.persist(saveObject);	
+
+		--lets copy that file, but rename it according to frameNumber
+		infile = io.open(filename,"r");
+		source_content = file:read("*all")
+		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. frameNumber .. ".fcs"
+		file = io.open(new_saved_state_file, "w+")
+		file:write(source_content)
+
 	 if (frameNumber % 400 < 10) then gui.text(50,50, "Saved"); end; --give it some time to show
      end;
      emu.frameadvance() -- This essentially tells FCEUX to keep running
