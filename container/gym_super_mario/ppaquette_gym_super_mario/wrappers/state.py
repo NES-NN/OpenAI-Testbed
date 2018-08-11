@@ -1,21 +1,22 @@
 import gym
 import os
 
-__all__ = ['SetSaveStateFolder']
+__all__ = ['EnableStateSavingAndLoading']
 
 
-def SetSaveStateFolder(saveStateFolder):
+def EnableStateSavingAndLoading(saveStateFolder):
     """ set the folder for the saving and loading of game states"""
 
-    class SetSaveStateFolderWrapper(gym.Wrapper):
-        #this file is the start of the game (Level 1, no distance gained)
-        self.baseSaveStateFile = "state-1-1.fcs"
+    class EnableStateSavingAndLoadingWrapper(gym.Wrapper):
 
         """
             State wrapper to set the path to the save game state 
         """
         def __init__(self, env):
-            super(SetSaveStateFolderWrapper, self).__init__(env)
+            super(EnableStateSavingAndLoadingWrapper, self).__init__(env)
+
+            #this file is the start of the game (Level 1, no distance gained)
+            self.baseSaveStateFile = "state-1-1.fcs"
            
             if not os.path.isfile(saveStateFolder + self.baseSaveStateFile):
                 raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
@@ -39,4 +40,4 @@ def SetSaveStateFolder(saveStateFolder):
         def saveToStateFile(self):
             self.unwrapped.saveState = True
             
-    return SetSaveStateFolderWrapper
+    return EnableStateSavingAndLoadingWrapper
