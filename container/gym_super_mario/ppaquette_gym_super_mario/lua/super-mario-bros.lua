@@ -412,11 +412,12 @@ function snapshot_and_save_to_disk(saveBuffer)
         savestate.save(saveBuffer);
         savestate.persist(saveBuffer);
 
-		--lets copy that file, but rename it according to level and distance
+		--lets copy that file, but rename it according to level (world & level)and distance
 		if stateFileToLoad ~= "" then
 			infile = io.open(stateFileToLoad,"rb"); --stateFileToLoad is from launch_vars
 			source_content = infile:read("*all")
-			new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
+			new_saved_state_file = "/opt/train/stateSaving/saveStates/hi.fcs"
+			--new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
 			file = io.open(new_saved_state_file, "wb")
 			file:write(source_content)
 			file:close();
