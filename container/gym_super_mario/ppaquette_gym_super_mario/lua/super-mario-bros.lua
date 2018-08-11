@@ -403,7 +403,7 @@ function load_saved_state_from_disk(filename)
     return saveBuffer;
 end;
 
-function snapshot_and_save_to_disk(saveBuffer)
+function snapshot_and_save_to_disk(saveBuffer, filename)
     if (saveBuffer == nil) then
         gui.text(50,50, "cannot save, lost buffer :(");
         emu.pause(); --make it obvious there is an error
@@ -413,14 +413,15 @@ function snapshot_and_save_to_disk(saveBuffer)
         savestate.persist(saveBuffer);
 
 		--lets copy that file, but rename it according to level (world & level)and distance
-		if stateFileToLoad ~= "" then
-			infile = io.open(stateFileToLoad,"rb"); --stateFileToLoad is from launch_vars
+		if filename ~= "" then
+			infile = io.open(filename,"rb"); --stateFileToLoad is from launch_vars
 			source_content = infile:read("*all")
 			new_saved_state_file = "/opt/train/stateSaving/saveStates/hi.fcs"
 			--new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
 			file = io.open(new_saved_state_file, "wb")
 			file:write(source_content)
 			file:close();
+			infile:close();
 		else
 			gui.text(50,50, "statefile:" ..stateFileToLoad);
 			emu.pause(); --make it obvious there is an error
@@ -777,20 +778,9 @@ function parse_commands(line)
     elseif "exit" == command then
         close_pipes();
         os.exit()
-    elseif "load" == command then
-        --might be good to validate that data
-        lastSaveBuffer = load_saved_state_from_disk(data)
-        is_reload = 1; --queue load on next restart
-        gui.text(50,50, "load pipe is not supported:" .. filename);
-        emu.pause();
     elseif "save" == command then
         --might be good to validate that data
-        snapshot_and_save_to_disk(lastSaveBuffer)
-    elseif "reload" == command then    
-        --good to add a nil check      
-        is_reload = 1;
-        gui.text(50,50, "reload pipe is not supported");
-        emu.pause();
+        snapshot_and_save_to_disk(lastSaveBuffer, stateFileToLoad)
         
     end;
     return;
