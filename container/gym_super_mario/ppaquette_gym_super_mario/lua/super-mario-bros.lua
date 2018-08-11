@@ -415,7 +415,7 @@ function snapshot_and_save_to_disk(saveBuffer)
         savestate.persist(saveBuffer);
 
 		--lets copy that file, but rename it according to level and distance
-		infile = io.open(filename,"rb");
+		infile = io.open(saveStateFolder,"rb");
 		source_content = infile:read("*all")
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
 		file = io.open(new_saved_state_file, "wb")
