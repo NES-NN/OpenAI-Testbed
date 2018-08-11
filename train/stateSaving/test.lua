@@ -18,10 +18,10 @@ while true do
         savestate.persist(saveObject);	
 
 		--lets copy that file, but rename it according to frameNumber
-		infile = io.open(filename,"r");
-		source_content = file:read("*all")
+		infile = io.open(filename,"rb");
+		source_content = io.read("*all")
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. frameNumber .. ".fcs"
-		file = io.open(new_saved_state_file, "w+")
+		file = io.open(new_saved_state_file, "wb")
 		file:write(source_content)
 		file:close();
 
