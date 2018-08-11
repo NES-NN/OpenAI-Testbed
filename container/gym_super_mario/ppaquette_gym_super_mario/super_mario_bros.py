@@ -275,13 +275,13 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
 
 class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):  
     @property
-    def stateFileLocation(self):
-        return self._stateFileLocation
+    def saveStateFolder(self):
+        return self._saveStateFolder
 
-    @stateFileLocation.setter
-    def stateFileLocation(self, value):
-        self._stateFileLocation = value
-        logger.info("Set state file path to: {}".format(value))        
+    @saveStateFolder.setter
+    def saveStateFolder(self, value):
+        self._saveStateFolder = value
+        logger.info("Set saveStateFolder to: {}".format(value))        
         self.launch_vars['stateFileToLoad'] = value
         self.launch_vars['is_reload'] = 1  #always reload when file changed
 
@@ -293,7 +293,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.lastDistance = 0
 
         #saveState
-        self._stateFileLocation = ''  
+        self._saveStateFolder = ''  
         self.loadStateFromFile = False        
         self.reloadState = False
     
@@ -304,14 +304,6 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
 
     def loadState(self, path=''):      
         logger.info("set launch_vars for next reset to load state file.")
-        logger.info("Set state file path to: {}".format(path)) 
+        logger.info("Set saveStateFolder to: {}".format(path)) 
         self.launch_vars['stateFileToLoad'] = path
         self.launch_vars['is_reload'] = 1 #always reload when file changed
-
-        # Silly to write to pipe since lua will be reset soon!
-        # self._write_to_pipe('load#'+ path)
-
-    # reload not supported 
-    # def reloadLastSavedState(self):  
-    #    logger.info("reload last saved game state sent to pipe")
-    #    self._write_to_pipe('reload')

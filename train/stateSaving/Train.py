@@ -106,7 +106,7 @@ if __name__ == "__main__":
     smb_env = gym.make(game_name)
     
     #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
-    wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
+    wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/')
 
     #game was going too fast for me via remote connection (3200%!)
     wrapper2 = SetPlayingMode('normal')
