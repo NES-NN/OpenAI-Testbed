@@ -3,7 +3,8 @@ emu.speedmode("normal") -- Set the speed of the emulator
 frameNumber = 0;
 
 --load savestate
-saveObject = savestate.create("/opt/train/stateSaving/saveStates/test.fcs");
+filename = "/opt/train/stateSaving/saveStates/test.fcs"
+saveObject = savestate.create(filename);
 --saveObject = savestate.create(1);
  savestate.load(saveObject);
 
@@ -22,6 +23,7 @@ while true do
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. frameNumber .. ".fcs"
 		file = io.open(new_saved_state_file, "w+")
 		file:write(source_content)
+		file:close();
 
 	 if (frameNumber % 400 < 10) then gui.text(50,50, "Saved"); end; --give it some time to show
      end;
