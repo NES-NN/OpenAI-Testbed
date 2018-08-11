@@ -9,7 +9,7 @@ def SetSaveStateFolder(saveStateFolder):
 
     class SetSaveStateFolderWrapper(gym.Wrapper):
         #this file is the start of the game (Level 1, no distance gained)
-        baseSaveStateFile = "state-1-1.fcs"
+        self.baseSaveStateFile = "state-1-1.fcs"
 
         """
             State wrapper to set the path to the save game state 
@@ -17,18 +17,18 @@ def SetSaveStateFolder(saveStateFolder):
         def __init__(self, env):
             super(SetSaveStateFolderWrapper, self).__init__(env)
            
-            if not os.path.isfile(saveStateFolder + baseSaveStateFile):
-                raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + baseSaveStateFile))
+            if not os.path.isfile(saveStateFolder + self.baseSaveStateFile):
+                raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
                 
             self.unwrapped.saveStateFolder = saveStateFolder
 
         def reset(self, **kwargs):
             # LoadState
             if self.unwrapped.loadStateFromFile:                
-                if not os.path.isfile(self.unwrapped.saveStateFolder+ baseSaveStateFile):
-                    raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + baseSaveStateFile))
+                if not os.path.isfile(self.unwrapped.saveStateFolder+ self.baseSaveStateFile):
+                    raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
                 
-                self.unwrapped.loadState(self.unwrapped.saveStateFolder+ baseSaveStateFile)
+                self.unwrapped.loadState(self.unwrapped.saveStateFolder+ self.baseSaveStateFile)
                 self.unwrapped.loadStateFromFile = False #done so reset flag
 
             return self.env.reset(**kwargs)
