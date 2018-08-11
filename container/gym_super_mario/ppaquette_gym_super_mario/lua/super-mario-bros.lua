@@ -157,7 +157,6 @@ addr_tiles = 0x500;
 --         SaveBuffers
 -- ===========================
 lastSaveBuffer = nil;
-saveStateFolder = ""; 
 
 -- ===========================
 --         Functions
@@ -391,7 +390,6 @@ function load_saved_state_from_disk(filename)
     gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
     
     if (file_exists(filename)) then
-		saveStateFolder = filename;
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
         --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
@@ -415,7 +413,7 @@ function snapshot_and_save_to_disk(saveBuffer)
         savestate.persist(saveBuffer);
 
 		--lets copy that file, but rename it according to level and distance
-		infile = io.open(saveStateFolder,"rb");
+		infile = io.open(stateFileToLoad,"rb"); --stateFileToLoad is from launch_vars
 		source_content = infile:read("*all")
 		new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
 		gui.text(50,50, new_saved_state_file);
