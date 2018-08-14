@@ -295,7 +295,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.shouldReloadFromSavedState = False        
         self.reloadState = False
     
-    def loadState(self, path='', distance=1):      
+    def loadState(self, path, distance):      
         logger.info("setting launch_vars for next reset to load state file:")
         logger.info("['saveStateFolder'] = {}".format(path)) 
         logger.info("['loadFromDistance'] = {}".format(distance))

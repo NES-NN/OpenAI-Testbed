@@ -389,12 +389,12 @@ function pick_closest_file(dir, level, from_distance)
 		if file:match("^%d+-%d+%.fcs$") --level-distance.fcs aka number-number.fcs
 		then
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)) --cut off extention
-				if (from_distance - distance < gap) and (distance < from_distance)
-				then
-					gap = from_distance - distance
-					matchingFile = file
-				end
+			if (from_distance - distance < gap) and (distance < from_distance)
+			then
+				gap = from_distance - distance
+				matchingFile = file
 			end
+			
 			matchingFile = file
 		else
 			gui.text(50,50, file .. "is not in the correct format");
