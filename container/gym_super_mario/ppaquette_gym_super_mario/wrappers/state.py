@@ -16,11 +16,11 @@ def EnableStateSavingAndLoading(saveStateFolder):
             super(EnableStateSavingAndLoadingWrapper, self).__init__(env)
 
             #this file is the start of the game (Level 1, no distance gained)
-            self.baseSaveStateFile = "state-1-1.fcs"
+            self.baseSaveStateFile = "0-1.fcs"
             self.distance = 1
            
             if not os.path.isfile(saveStateFolder + self.baseSaveStateFile):
-                raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
+                raise gym.error.Error('Error - Could not find base state file.  Please check your save folder exists: "{}" and contains the expected save file: "{}" '.format(saveStateFolder, self.baseSaveStateFile))
                 
             self.unwrapped.saveStateFolder = saveStateFolder
 
