@@ -383,10 +383,10 @@ end;
 --      ** SAVE STATE **
 -- ===========================
 function pick_closest_file(dir, level, from_distance)
-	matchingFile = nil
+	local matchingFile = nil
 	gap = from_distance
 	for file in paths.files(dir) do
-		if file:match("^%d+-%d+%.fcs$") --level-distance.fcs number-number.fcs
+		if file:match("^%d+-%d+%.fcs$") --level-distance.fcs aka number-number.fcs
 		then
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)) --cut off extention
 				if (from_distance - distance < gap) and (distance < from_distance)
@@ -396,6 +396,9 @@ function pick_closest_file(dir, level, from_distance)
 				end
 			end
 			matchingFile = file
+		else
+			gui.text(50,50, file .. "is not in the correct format");
+			emu.pause(); --make it obvious there is an error
 		end
 	end
 	return matchingFile

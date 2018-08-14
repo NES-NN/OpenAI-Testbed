@@ -28,7 +28,7 @@ def EnableStateSavingAndLoading(saveStateFolder):
             # LoadState
             if self.unwrapped.shouldReloadFromSavedState:                
                 if not os.path.isfile(self.unwrapped.saveStateFolder+ self.baseSaveStateFile):
-                    raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
+                    raise gym.error.Error('Error - Save state folder now looks broken!?! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
                 
                 self.unwrapped.loadState(self.unwrapped.saveStateFolder, self.distance)
                 self.unwrapped.shouldReloadFromSavedState = False #done so reset flag
