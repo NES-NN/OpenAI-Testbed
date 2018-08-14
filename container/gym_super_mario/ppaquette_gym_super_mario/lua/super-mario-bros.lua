@@ -383,14 +383,12 @@ end;
 --      ** SAVE STATE **
 -- ===========================
 function pick_closest_file(dir, level, from_distance)
-	local matchingFile = nil
-	gap = from_distance
+	local matchingFile = nil;
+	local gap = from_distance;
 	for file in paths.files(dir) do
-		if file:match("^%d+-%d+%.fcs$") --level-distance.fcs aka number-number.fcs
-		then
+		if file:match("^%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)) --cut off extention
-			if (from_distance - distance < gap) and (distance < from_distance)
-			then
+			if (from_distance - distance < gap) and (distance < from_distance) then
 				gap = from_distance - distance
 				matchingFile = file
 			end
@@ -401,7 +399,7 @@ function pick_closest_file(dir, level, from_distance)
 			emu.pause(); --make it obvious there is an error
 		end
 	end
-	return matchingFile
+	return matchingFile;
 end;
 
 function file_exists(name)
@@ -414,8 +412,8 @@ function load_saved_state_from_disk(folder, level, distance)
 	emu.pause(); --make it obvious there is an error
     filename = pick_closest_file(folder);
 	gui.text(50,50, "File to load: " .. filename);
-        emu.pause(); --make it obvious there is an error
-    if (filename != nil) then
+    emu.pause(); --make it obvious there is an error
+    if (filename ~= nil) then
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
         --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
