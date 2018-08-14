@@ -26,7 +26,8 @@ draw_tiles = tonumber(draw_tiles) or 0;
 meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
-stateFileToLoad = stateFileToLoad or "";
+saveStateFolder = saveStateFolder or "";
+loadFromDistance = tonumber(loadFromDistance) or 0;
 is_reload = tonumber(is_reload) or 0;
 
 -- Parsing world
@@ -381,15 +382,34 @@ end;
 -- ===========================
 --      ** SAVE STATE **
 -- ===========================
+function pick_closest_file(dir, level, from_distance)
+	matchingFile = nil
+	gap = from_distance
+	for file in paths.files(dir) do
+		if file:match("^%d+-%d+%.fcs$") --level-distance.fcs number-number.fcs
+		then
+			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)) --cut off extention
+				if (from_distance - distance < gap) and (distance < from_distance)
+				then
+					gap = from_distance - distance
+					matchingFile = file
+				end
+			end
+			matchingFile = file
+		end
+	end
+	return matchingFile
+end;
+
 function file_exists(name)
     local f=io.open(name,"r")
     if f~=nil then io.close(f) return true else return false end
 end
 
-function load_saved_state_from_disk(filename)   
-    gui.text(50,50, "load_saved_state_from_disk called:" .. filename);
-    
-    if (file_exists(filename)) then
+function load_saved_state_from_disk(folder, level, distance)   
+    gui.text(50,50, "load_saved_state_from_disk called:" .. folder .. level .. distance);
+    filename = pick_closest_file(folder);
+    if (filename != nil) then
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
         --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
@@ -414,7 +434,7 @@ function snapshot_and_save_to_disk(saveBuffer, filename)
 
 		--lets copy that file, but rename it according to level (world & level)and distance
 		if filename ~= "" then
-			infile = io.open(filename,"rb"); --stateFileToLoad is from launch_vars
+			infile = io.open(filename,"rb"); --saveStateFolder is from launch_vars
 			source_content = infile:read("*all")
 			--new_saved_state_file = "/opt/train/stateSaving/saveStates/hi.fcs"
 			new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
@@ -423,7 +443,7 @@ function snapshot_and_save_to_disk(saveBuffer, filename)
 			file:close();
 			infile:close();
 		else
-			gui.text(50,50, "statefile:" ..stateFileToLoad);
+			gui.text(50,50, "statefile:" ..saveStateFolder);
 			emu.pause(); --make it obvious there is an error
 			
 		end;
@@ -780,7 +800,7 @@ function parse_commands(line)
         os.exit()
     elseif "save" == command then
         --might be good to validate that data
-        snapshot_and_save_to_disk(lastSaveBuffer, stateFileToLoad)
+        snapshot_and_save_to_disk(lastSaveBuffer, saveStateFolder)
         
     end;
     return;
@@ -892,8 +912,8 @@ function main_loop()
     running_thread = 1;
     
     --load saved state if not already loaded.
-    if stateFileToLoad ~= "" and (is_reload == 1) then
-        lastSaveBuffer = load_saved_state_from_disk(stateFileToLoad);        
+    if saveStateFolder ~= "" and (is_reload == 1) then
+        lastSaveBuffer = load_saved_state_from_disk(saveStateFolder, get_level(), loadFromDistance);        
     end;
 
     --load state likely messes with framecount, so moving below

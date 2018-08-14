@@ -17,6 +17,7 @@ def EnableStateSavingAndLoading(saveStateFolder):
 
             #this file is the start of the game (Level 1, no distance gained)
             self.baseSaveStateFile = "state-1-1.fcs"
+            self.distance = 1
            
             if not os.path.isfile(saveStateFolder + self.baseSaveStateFile):
                 raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
@@ -25,17 +26,18 @@ def EnableStateSavingAndLoading(saveStateFolder):
 
         def reset(self, **kwargs):
             # LoadState
-            if self.unwrapped.loadStateFromFile:                
+            if self.unwrapped.shouldReloadFromSavedState:                
                 if not os.path.isfile(self.unwrapped.saveStateFolder+ self.baseSaveStateFile):
                     raise gym.error.Error('Error - Could not load save file! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
                 
-                self.unwrapped.loadState(self.unwrapped.saveStateFolder+ self.baseSaveStateFile)
-                self.unwrapped.loadStateFromFile = False #done so reset flag
+                self.unwrapped.loadState(self.unwrapped.saveStateFolder, self.distance)
+                self.unwrapped.shouldReloadFromSavedState = False #done so reset flag
 
             return self.env.reset(**kwargs)
 
-        def loadSaveStateFile(self):
-            self.unwrapped.loadStateFromFile = True
+        def loadSaveStateFile(self, distance):
+            self.unwrapped.shouldReloadFromSavedState = True
+            self.distance = distance
 
         def saveToStateFile(self):
             self.unwrapped.saveState = True

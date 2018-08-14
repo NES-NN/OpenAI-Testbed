@@ -37,18 +37,18 @@ def random_moves(env):
 
         while (child_run < args.childrenCount):    
 
-            
-            #env.reloadSaveStateFile()  --not supported in gym env.
-            env.loadSaveStateFile() #passes the saveState filename to lua, the reset command will
-            #trigger the loading of the state file.
-
-            observation = env.reset()
-            
             done = False
             t = 0
             last_distance = 0;
             strike = 0;
             best_distance = 0;
+
+            #env.reloadSaveStateFile()  --not supported in gym env.
+            env.loadSaveStateFile(best_distance) #passes the saveState filename to lua, the reset command will
+            #trigger the loading of the state file.
+
+            observation = env.reset()
+            
 
             while not done:
                 # Choose random action
