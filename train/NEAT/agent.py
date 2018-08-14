@@ -12,8 +12,7 @@ from testbed.training import neat as neat_
 #  GLOBALS
 # -----------------------------------------------------------------------------
 
-#GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
-GYM_NAME = 'ppaquette/SuperMarioBros-1-1-Tiles-v0'
+GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 GYM_ENV = None
 
 
@@ -25,6 +24,7 @@ def evaluate(genome, config):
     stuck_max = 600
     info = {}
 
+    GYM_ENV.loadSaveStateFile()
     observation = GYM_ENV.reset()
 
     while not done:
@@ -84,10 +84,10 @@ def main():
 
     # Create Gym Environment
     env = gym.make(GYM_NAME)
-    #save_wrapper = SetSaveStateFolder(args.state_path)
-    #control_wrapper = SetPlayingMode("human")
+    save_wrapper = SetSaveStateFolder(args.state_path)
+    # control_wrapper = SetPlayingMode("human")
     global GYM_ENV
-    GYM_ENV = env
+    GYM_ENV = save_wrapper(env)
 
     # Evolve!
     evolve(config=config, num_cores=args.num_cores)
