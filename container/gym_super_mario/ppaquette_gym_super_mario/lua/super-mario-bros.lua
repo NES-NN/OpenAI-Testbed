@@ -412,6 +412,8 @@ end
 function load_saved_state_from_disk(folder, level, distance)   
     gui.text(50,50, "load_saved_state_from_disk called:" .. folder .. level .. distance);
     filename = pick_closest_file(folder);
+	gui.text(50,50, "File to load: " .. filename);
+        emu.pause(); --make it obvious there is an error
     if (filename != nil) then
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
