@@ -9,6 +9,7 @@ filename =nil
 			filename = f
 			gui.text(5,50, "" ..f);
 			emu.pause(); --make it obvious there is an error
+		end;
 
    end
 saveObject = savestate.create(filename);
