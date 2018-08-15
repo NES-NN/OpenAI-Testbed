@@ -402,6 +402,7 @@ function pick_closest_file(dir, level, from_distance)
 		file = files[i]; --file will be the full path and file name
 		if file:match("%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
+			--we want the file that is closest to the from_distance without being passed it
 			if ((from_distance - distance) < gap) and (distance < from_distance) then
 				gap = from_distance - distance;
 				matchingFile = file;
@@ -435,25 +436,35 @@ function load_saved_state_from_disk(folder, level, distance)
     return saveBuffer;
 end;
 
+function copy_file(source, destination)
+	infile = io.open(source,"rb"); 
+	source_content = infile:read("*all")
+	file = io.open(destination, "wb")
+	file:write(source_content)
+	file:close();
+	infile:close();
+end;
+
+
 function snapshot_and_save_to_disk(saveBuffer, folder)
     if (saveBuffer == nil) then
         gui.text(50,50, "cannot save, lost buffer :(");
         emu.pause(); --make it obvious there is an error
     else
         gui.text(50,50, "snapshot_and_save_to_disk called");
-        savestate.save(saveBuffer);
-        savestate.persist(saveBuffer);
-
-		--lets copy that file, but rename it according to level (world & level)and distance
 		if lastSaveFile ~= "" then
-			infile = io.open(lastSaveFile,"rb"); --saveStateFolder is from launch_vars
-			source_content = infile:read("*all")
-			--new_saved_state_file = "/opt/train/stateSaving/saveStates/hi.fcs"
+			--first we need to backup the savestate File
+			backupName = lastSaveFile .. "b";
+			copy_file(lastSaveFile,backupName);
+			--now we save the new state, which overwrites the current save file 
+			savestate.save(saveBuffer);
+			savestate.persist(saveBuffer);
+			--now we make a copy with the right name: level (world & level)- distance.fcs
 			new_saved_state_file = folder .. get_level() .."-".. curr_x_position .. ".fcs"
-			file = io.open(new_saved_state_file, "wb")
-			file:write(source_content)
-			file:close();
-			infile:close();
+			copy_file(lastSaveFile,new_saved_state_file)
+			--finally restore the backup to keep the last savefile correct.
+			copy_file(backupName,lastSaveFile);
+			--would be good to delete the backup now.
 		else
 			gui.text(5,50, "No file:" .. lastSaveFile);
 			emu.pause(); --make it obvious there is an error
