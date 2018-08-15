@@ -417,10 +417,9 @@ end
 
 function load_saved_state_from_disk(folder, level, distance)
     filename = pick_closest_file(folder, level, distance);
-	gui.text(50,50, "File to load: " .. filename);
-    emu.pause(); --make it obvious there is an error
-    
+	
 	if (filename ~= nil) then
+		gui.text(5,50, "Loading: " .. filename);
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
         --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
@@ -428,7 +427,7 @@ function load_saved_state_from_disk(folder, level, distance)
 
         is_reload = 0;
     else
-        gui.text(50,50, "could not find file:" .. filename);
+        gui.text(50,50, "No state file.");
         emu.pause(); --make it obvious there is an error
     end;
     return saveBuffer;
