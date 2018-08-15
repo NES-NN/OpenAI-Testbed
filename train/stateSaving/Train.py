@@ -44,6 +44,7 @@ def random_moves(env):
             best_distance = 40;
 
             #env.reloadSaveStateFile()  --not supported in gym env.
+            logger.info("load state file from distance: {}".format(best_distance))
             env.loadSaveStateFile(best_distance) #passes the saveState filename to lua, the reset command will
             #trigger the loading of the state file.
 
