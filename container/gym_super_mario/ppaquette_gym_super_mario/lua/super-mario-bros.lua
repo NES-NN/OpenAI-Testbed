@@ -382,12 +382,23 @@ end;
 -- ===========================
 --      ** SAVE STATE **
 -- ===========================
+--https://stackoverflow.com/questions/5303174/how-to-get-list-of-directories-in-lua
+function dirLookup(dir)
+	files = {}
+   local p = io.popen('find "'..dir..'" -type f')  --Open directory look for files, save data in p. By giving '-type f' as parameter, it returns all files.     
+   for file in p:lines() do                         --Loop through all files
+	   table.insert(files,file)
+   end
+   return files;
+end
+
 function pick_closest_file(dir, level, from_distance)
 	local matchingFile = nil;
 	local gap = from_distance;
-	gui.text(5,50, "" .. dir .. level .. from_distance);
-			emu.pause(); --make it obvious there is an error
-	for file in paths.files(dir) do
+	local files = dirLookup(dir);
+
+	for i=1, #files, 1 do
+		file = files[i];
 		if file:match("^%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
 			if ((from_distance - distance) < gap) and (distance < from_distance) then
