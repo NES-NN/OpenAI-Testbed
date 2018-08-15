@@ -385,7 +385,7 @@ end;
 function pick_closest_file(dir, level, from_distance)
 	local matchingFile = nil;
 	local gap = from_distance;
-	gui.text(50,50, "" .. dir .. level .. from_distance);
+	gui.text(5,50, "" .. dir .. level .. from_distance);
 			emu.pause(); --make it obvious there is an error
 	for file in paths.files(dir) do
 		if file:match("^%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs

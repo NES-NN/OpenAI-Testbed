@@ -3,7 +3,14 @@ emu.speedmode("normal") -- Set the speed of the emulator
 frameNumber = 0;
 
 --load savestate
-filename = "/opt/train/stateSaving/saveStates/test.fcs"
+filename =nil
+   for f in paths.files("/opt/train/stateSaving/saveStates/") do
+		if f:match("test.fcs$") then --level-distance.fcs aka number-number.fcs
+			filename = f
+			gui.text(5,50, "" ..f);
+			emu.pause(); --make it obvious there is an error
+
+   end
 saveObject = savestate.create(filename);
 --saveObject = savestate.create(1);
  savestate.load(saveObject);
