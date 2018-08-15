@@ -158,6 +158,7 @@ addr_tiles = 0x500;
 --         SaveBuffers
 -- ===========================
 lastSaveBuffer = nil;
+lastSaveFile = nil;
 
 -- ===========================
 --         Functions
@@ -420,6 +421,7 @@ function load_saved_state_from_disk(folder, level, distance)
 	
 	if (filename ~= nil) then
 		gui.text(5,50, "Loading: " .. filename);
+		lastSaveFile = filename;
         saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
         savestate.load(saveBuffer); 
         --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
@@ -433,7 +435,7 @@ function load_saved_state_from_disk(folder, level, distance)
     return saveBuffer;
 end;
 
-function snapshot_and_save_to_disk(saveBuffer, filename)
+function snapshot_and_save_to_disk(saveBuffer, folder)
     if (saveBuffer == nil) then
         gui.text(50,50, "cannot save, lost buffer :(");
         emu.pause(); --make it obvious there is an error
@@ -443,17 +445,17 @@ function snapshot_and_save_to_disk(saveBuffer, filename)
         savestate.persist(saveBuffer);
 
 		--lets copy that file, but rename it according to level (world & level)and distance
-		if filename ~= "" then
-			infile = io.open(filename,"rb"); --saveStateFolder is from launch_vars
+		if lastSaveFile ~= "" then
+			infile = io.open(lastSaveFile,"rb"); --saveStateFolder is from launch_vars
 			source_content = infile:read("*all")
 			--new_saved_state_file = "/opt/train/stateSaving/saveStates/hi.fcs"
-			new_saved_state_file = "/opt/train/stateSaving/saveStates/" .. get_level() .."-".. curr_x_position .. ".fcs"
+			new_saved_state_file = folder .. get_level() .."-".. curr_x_position .. ".fcs"
 			file = io.open(new_saved_state_file, "wb")
 			file:write(source_content)
 			file:close();
 			infile:close();
 		else
-			gui.text(50,50, "statefile:" ..saveStateFolder);
+			gui.text(5,50, "No file:" .. lastSaveFile);
 			emu.pause(); --make it obvious there is an error
 			
 		end;
