@@ -401,9 +401,11 @@ function pick_closest_file(dir, level, from_distance)
 	for i=1, #files, 1 do
 		file = files[i]; --file will be the full path and file name
 		if file:match("%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
+			file_name = file:match("%d+-%d+%.fcs$")
+			local file_level = file_name:match("^%d+")
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
 			--we want the file that is closest to the from_distance without being passed it
-			if ((from_distance - distance) < gap) and (distance < from_distance) then
+			if (((from_distance - distance) < gap) and (distance < from_distance) and (level == file_level)) then
 				gap = from_distance - distance;
 				matchingFile = file;
 			end;			
@@ -464,7 +466,8 @@ function snapshot_and_save_to_disk(saveBuffer, folder)
 			copy_file(lastSaveFile,new_saved_state_file)
 			--finally restore the backup to keep the last savefile correct.
 			copy_file(backupName,lastSaveFile);
-			--would be good to delete the backup now.
+			--delete backup file
+			os.remove(backupName);
 		else
 			gui.text(5,50, "No file:" .. lastSaveFile);
 			emu.pause(); --make it obvious there is an error
