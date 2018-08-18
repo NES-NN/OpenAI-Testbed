@@ -26,6 +26,7 @@ draw_tiles = tonumber(draw_tiles) or 0;
 meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
+
 saveStateFolder = saveStateFolder or "";
 loadFromDistance = tonumber(loadFromDistance) or 0;
 is_reload = tonumber(is_reload) or 0;
@@ -447,7 +448,6 @@ function copy_file(source, destination)
 	infile:close();
 end;
 
-
 function snapshot_and_save_to_disk(saveBuffer, folder)
     if (saveBuffer == nil) then
         gui.text(50,50, "cannot save, lost buffer :(");
@@ -826,8 +826,7 @@ function parse_commands(line)
         os.exit()
     elseif "save" == command then
         --might be good to validate that data
-        snapshot_and_save_to_disk(lastSaveBuffer, saveStateFolder)
-        
+        snapshot_and_save_to_disk(lastSaveBuffer, saveStateFolder)       
     end;
     return;
 end;

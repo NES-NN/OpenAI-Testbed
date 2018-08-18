@@ -26,6 +26,7 @@ for i=1, #files, 1 do
 
    end
 saveObject = savestate.create(filename);
+
 --saveObject = savestate.create(1);
  savestate.load(saveObject);
 

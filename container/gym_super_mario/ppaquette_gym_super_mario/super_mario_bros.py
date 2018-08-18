@@ -303,3 +303,4 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.launch_vars['saveStateFolder'] = path
         self.launch_vars['loadFromDistance'] = distance
         self.launch_vars['is_reload'] = 1 #is_reload triggers loading state file on next reset
+        

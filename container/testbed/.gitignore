@@ -1,0 +1,19 @@
+# Python Generic List
+__pycache__/
+*.py[cod]
+
+# Generated files from building
+dist/
+build/
+*.egg-info/
+.pypirc
+*.pyc
+*.egg
+*.egg/
+
+# Generated files from testing
+.coverage
+
+# IDE List
+venv
+.idea

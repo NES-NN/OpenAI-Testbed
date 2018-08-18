@@ -50,7 +50,6 @@ def random_moves(env):
 
             observation = env.reset()
             
-
             while not done:
                 # Choose random action
                 action =  np.random.randint(2,size=env.action_space.shape[0])
