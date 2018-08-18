@@ -1,47 +1,45 @@
 import gym
 import os
 
-__all__ = ['SetSaveStateFolder']
+__all__ = ['EnableStateSavingAndLoading']
 
 
-def SetSaveStateFolder(stateFileLocation):
+def EnableStateSavingAndLoading(saveStateFolder):
     """ set the folder for the saving and loading of game states"""
 
-    class SetSaveStateFolderWrapper(gym.Wrapper):
+    class EnableStateSavingAndLoadingWrapper(gym.Wrapper):
+
         """
             State wrapper to set the path to the save game state 
         """
         def __init__(self, env):
-            super(SetSaveStateFolderWrapper, self).__init__(env)
+            super(EnableStateSavingAndLoadingWrapper, self).__init__(env)
+
+            #this file is the start of the game (Level 1, no distance gained)
+            self.baseSaveStateFile = "0-1.fcs"
+            self.distance = 1
            
-            if not os.path.isfile(stateFileLocation):
-                raise gym.error.Error('Error - Could not load save file! "{}" '.format(stateFileLocation))
+            if not os.path.isfile(saveStateFolder + self.baseSaveStateFile):
+                raise gym.error.Error('Error - Could not find base state file.  Please check your save folder exists: "{}" and contains the expected save file: "{}" '.format(saveStateFolder, self.baseSaveStateFile))
                 
-            self.unwrapped.stateFileLocation = stateFileLocation
+            self.unwrapped.saveStateFolder = saveStateFolder
 
         def reset(self, **kwargs):
             # LoadState
-            if self.unwrapped.loadStateFromFile:                
-                if not os.path.isfile(self.unwrapped.stateFileLocation):
-                    raise gym.error.Error('NesEnv_Error - Could not load save file! "{}" '.format(self.unwrapped.stateFileLocation))
+            if self.unwrapped.shouldReloadFromSavedState:                
+                if not os.path.isfile(self.unwrapped.saveStateFolder+ self.baseSaveStateFile):
+                    raise gym.error.Error('Error - Save state folder now looks broken!?! "{}" '.format(saveStateFolder + self.baseSaveStateFile))
                 
-                self.unwrapped.loadState(self.unwrapped.stateFileLocation)
-                self.unwrapped.loadStateFromFile = False #done so reset flag
-
-            # Reload state -reload not supported since need to do a full load always!
-            # if self.unwrapped.reloadState:                
-            #    self.unwrapped.reloadLastSavedState()
-            #    self.unwrapped.reloadState = False
+                self.unwrapped.loadState(self.unwrapped.saveStateFolder, self.distance)
+                self.unwrapped.shouldReloadFromSavedState = False #done so reset flag
 
             return self.env.reset(**kwargs)
 
-        def loadSaveStateFile(self):
-            self.unwrapped.loadStateFromFile = True
-
-        def reloadSaveStateFile(self):
-            self.unwrapped.reloadState = True
+        def loadSaveStateFile(self, distance):
+            self.unwrapped.shouldReloadFromSavedState = True
+            self.distance = distance
 
         def saveToStateFile(self):
             self.unwrapped.saveState = True
             
-    return SetSaveStateFolderWrapper
+    return EnableStateSavingAndLoadingWrapper

@@ -37,19 +37,19 @@ def random_moves(env):
 
         while (child_run < args.childrenCount):    
 
-            
-            #env.reloadSaveStateFile()  --not supported in gym env.
-            env.loadSaveStateFile() #passes the saveState filename to lua, the reset command will
-            #trigger the loading of the state file.
-
-            observation = env.reset()
-            
             done = False
             t = 0
             last_distance = 0;
             strike = 0;
-            best_distance = 0;
+            best_distance = 40;
 
+            #env.reloadSaveStateFile()  --not supported in gym env.
+            logger.info("load state file from distance: {}".format(best_distance))
+            env.loadSaveStateFile(best_distance) #passes the saveState filename to lua, the reset command will
+            #trigger the loading of the state file.
+
+            observation = env.reset()
+            
             while not done:
                 # Choose random action
                 action =  np.random.randint(2,size=env.action_space.shape[0])
@@ -105,8 +105,8 @@ if __name__ == "__main__":
 
     smb_env = gym.make(game_name)
     
-    #we will want to change this to really be a folder, and have some distance+generation.fcs file creator step
-    wrapper = SetSaveStateFolder('/opt/train/stateSaving/saveStates/test.fcs')
+    #We need to have some distance+generation.fcs file creator step
+    wrapper = EnableStateSavingAndLoading('/opt/train/stateSaving/saveStates/')
 
     #game was going too fast for me via remote connection (3200%!)
     wrapper2 = SetPlayingMode('normal')

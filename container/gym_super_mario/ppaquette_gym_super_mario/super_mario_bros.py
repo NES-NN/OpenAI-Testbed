@@ -275,43 +275,32 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
 
 class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):  
     @property
-    def stateFileLocation(self):
-        return self._stateFileLocation
+    def saveStateFolder(self):
+        return self._saveStateFolder
 
-    @stateFileLocation.setter
-    def stateFileLocation(self, value):
-        self._stateFileLocation = value
-        logger.info("Set state file path to: {}".format(value))        
-        self.launch_vars['stateFileToLoad'] = value
-        self.launch_vars['is_reload'] = 1  #always reload when file changed
+    @saveStateFolder.setter
+    def saveStateFolder(self, value):
+        self._saveStateFolder = value
+        logger.info("['saveStateFolder'] = {}".format(value))
+        logger.info("['is_reload'] = 1")
+        self.launch_vars['saveStateFolder'] = value
+        self.launch_vars['is_reload'] = 1  #always reload when folder changed
 
     def __init__(self, draw_tiles=False, level=0):
-        SuperMarioBrosEnv.__init__(self, draw_tiles=False, level=0)
+        SuperMarioBrosEnv.__init__(self, draw_tiles=draw_tiles, level=0)
         logger.info("Starting the SavingSuperMarioBros Environment...")
         
-        self.noProgress = 0
-        self.lastDistance = 0
-
         #saveState
-        self._stateFileLocation = ''  
-        self.loadStateFromFile = False        
+        self._saveStateFolder = ''  
+        self.shouldReloadFromSavedState = False        
         self.reloadState = False
     
-    def _process_reset_message(self):
-        logger.info("resetting progress state")
-        self.noProgress = 0
-        self.lastDistance = 0
-
-    def loadState(self, path=''):      
-        logger.info("set launch_vars for next reset to load state file.")
-        logger.info("Set state file path to: {}".format(path)) 
-        self.launch_vars['stateFileToLoad'] = path
-        self.launch_vars['is_reload'] = 1 #always reload when file changed
-
-        # Silly to write to pipe since lua will be reset soon!
-        # self._write_to_pipe('load#'+ path)
-
-    # reload not supported 
-    # def reloadLastSavedState(self):  
-    #    logger.info("reload last saved game state sent to pipe")
-    #    self._write_to_pipe('reload')
+    def loadState(self, path, distance):      
+        logger.info("setting launch_vars for next reset to load state file:")
+        logger.info("['saveStateFolder'] = {}".format(path)) 
+        logger.info("['loadFromDistance'] = {}".format(distance))
+        logger.info("['is_reload'] = 1")
+        self.launch_vars['saveStateFolder'] = path
+        self.launch_vars['loadFromDistance'] = distance
+        self.launch_vars['is_reload'] = 1 #is_reload triggers loading state file on next reset
+        
