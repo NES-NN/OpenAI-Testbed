@@ -34,10 +34,10 @@ def evaluate(genome, config):
     stuck_max = 600
     info = {}
 
-    env.loadSaveStateFile(START_DISTANCE)
-    observation = env.reset()
-
     while not done or info['distance'] < END_DISTANCE:
+        env.loadSaveStateFile(START_DISTANCE)
+        observation = env.reset()
+
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
         observation, reward, done, info = env.step(outputs)
         stuck += 1 if reward <= 0 else 0
@@ -45,8 +45,8 @@ def evaluate(genome, config):
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
         if stuck > stuck_max:
             break
-        if info['life'] == 0:
-            break
+       # if info['life'] == 0:
+       #     break
 
         env.close()
     return neat_.calculate_fitness(info)
@@ -62,7 +62,7 @@ def evolve(config, num_cores):
 
     pe = neat.ParallelEvaluator(num_cores, evaluate)
 
-    while stats.get_fitness_mean() < END_DISTANCE:
+    while True:
         winner = pop.run(pe.evaluate, 1)
 
         visualize.plot_stats(stats, ylog=False, view=False)
@@ -71,7 +71,9 @@ def evolve(config, num_cores):
         # Save the best Genome from the last 5 gens.
         with open('Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
-
+        
+        if stats.get_fitness_mean()[0] > END_DISTANCE:
+            break
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
@@ -81,9 +83,9 @@ def main():
                         help="The number of cores on your computer for parallel execution")
     parser.add_argument('--state-path', type=str, default="/opt/train/stateSaving/saveStates/",
                         help="The path to the state file to commence training from")
-    parser.add_argument('--input-distance', type=int, default=40,
+    parser.add_argument('--input-distance', type=int, default=570,
                         help="The target distance Mario should start training from")
-    parser.add_argument('--target-distance', type=int, default=100,
+    parser.add_argument('--target-distance', type=int, default=1000,
                         help="The target distance Mario should achieve before closing")
     args = parser.parse_args()
 
