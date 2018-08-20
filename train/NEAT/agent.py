@@ -24,8 +24,10 @@ def evaluate(genome, config):
     stuck_max = 600
     info = {}
 
-    GYM_ENV.loadSaveStateFile()
+    GYM_ENV.loadSaveStateFile(40)
     observation = GYM_ENV.reset()
+
+    print(observation)
 
     while not done:
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
@@ -65,11 +67,11 @@ def evolve(config, num_cores):
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
-    parser.add_argument('--config-path', type=str, default="/Users/joshuabeemster/Documents/GitHub/OpenAI-Testbed/train/NEAT/config-feedforward",
+    parser.add_argument('--config-path', type=str, default="/opt/train/NEAT/config-feedforward",
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/Users/joshuabeemster/Documents/GitHub/OpenAI-Testbed/train/NEAT/states/test.fcs",
+    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
                         help="The path to the state file to commence training from")
     parser.add_argument('--target-distance', type=int, default=1,
                         help="The target distance Mario should achieve before closing")
@@ -84,10 +86,11 @@ def main():
 
     # Create Gym Environment
     env = gym.make(GYM_NAME)
-    save_wrapper = SetSaveStateFolder(args.state_path)
-    # control_wrapper = SetPlayingMode("human")
+    save_wrapper = EnableStateSavingAndLoading(args.state_path)
+    #control_wrapper = SetPlayingMode("human")
     global GYM_ENV
-    GYM_ENV = save_wrapper(env)
+    env = save_wrapper(env)
+    GYM_ENV = env
 
     # Evolve!
     evolve(config=config, num_cores=args.num_cores)
