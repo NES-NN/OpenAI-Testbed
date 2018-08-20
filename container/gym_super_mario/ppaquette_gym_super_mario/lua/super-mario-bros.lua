@@ -28,7 +28,7 @@ pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
 
 saveStateFolder = saveStateFolder or "";
-loadFromDistance = tonumber(loadFromDistance) or 0;
+loadFromDistance = tonumber(loadFromDistance) or 2; --since or statefile starts at 1, we start just past it.
 is_reload = tonumber(is_reload) or 0;
 
 -- Parsing world
@@ -408,12 +408,14 @@ function pick_closest_file(dir, level, from_distance)
 		if file:match("%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
 			file_name = file:match("%d+-%d+%.fcs$")
 			local file_level = tonumber(file_name:match("^%d+"));
-			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
-			--we want the file that is closest to the from_distance without being passed it
-			if (((from_distance - distance) < gap) and (distance < from_distance) and (level == file_level)) then
-				gap = from_distance - distance;
-				matchingFile = file;
-			end;			
+			local distance = tonumber(file_name:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
+			if (file_level == level) then
+				--we want the file that is closest to the from_distance without being passed it
+				if (((from_distance - distance) < gap) and (distance < from_distance)) then
+					gap = from_distance - distance;
+					matchingFile = file;
+				end;		
+			end;
 		end;
 	end;
 	return matchingFile;
@@ -437,7 +439,7 @@ function load_saved_state_from_disk(folder, level, distance)
 
         is_reload = 0;
     else
-        gui.text(5,50, "No state file.");
+        gui.text(5,50, "Missing file for level: ".. level .. " pre " .. distance);
         emu.pause(); --make it obvious there is an error
     end;
     return saveBuffer;
