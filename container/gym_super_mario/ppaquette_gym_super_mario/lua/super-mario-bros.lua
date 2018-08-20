@@ -398,6 +398,10 @@ function pick_closest_file(dir, level, from_distance)
 	local matchingFile = nil;
 	local gap = from_distance;
 	local files = dirLookup(dir);
+	if (#files < 1) then
+		gui.text(5,50, "No files in: " .. dir);
+        emu.pause(); --make it obvious there is an error
+    end;
 
 	for i=1, #files, 1 do
 		file = files[i]; --file will be the full path and file name
@@ -433,7 +437,7 @@ function load_saved_state_from_disk(folder, level, distance)
 
         is_reload = 0;
     else
-        gui.text(50,50, "No state file.");
+        gui.text(5,50, "No state file.");
         emu.pause(); --make it obvious there is an error
     end;
     return saveBuffer;
