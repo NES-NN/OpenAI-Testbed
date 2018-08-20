@@ -407,7 +407,7 @@ function pick_closest_file(dir, level, from_distance)
 		file = files[i]; --file will be the full path and file name
 		if file:match("%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
 			file_name = file:match("%d+-%d+%.fcs$")
-			local file_level = file_name:match("^%d+")
+			local file_level = tonumber(file_name:match("^%d+"));
 			local distance = tonumber(file:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
 			--we want the file that is closest to the from_distance without being passed it
 			if (((from_distance - distance) < gap) and (distance < from_distance) and (level == file_level)) then
