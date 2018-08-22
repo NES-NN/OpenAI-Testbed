@@ -3,9 +3,6 @@
 !train/*.py
 !train/*.fcs
 
-# Generated files from training
-train/*
-
 # Generated files from compilation
 build/*
 *.pyc
