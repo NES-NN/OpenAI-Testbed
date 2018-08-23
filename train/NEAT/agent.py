@@ -52,8 +52,11 @@ def evaluate(genome, config):
     return neat_.calculate_fitness(info)
 
 
-def evolve(config, num_cores):
-    pop = neat.Population(config)
+def evolve(config, num_cores, checkpoint):
+    if checkpoint:
+        pop = neat.Checkpointer.restore_checkpoint(checkpoint)
+    else:
+        pop = neat.Population(config)
 
     pop.add_reporter(neat.Checkpointer(1, 600))
     pop.add_reporter(neat.StdOutReporter(True))
@@ -83,10 +86,12 @@ def main():
                         help="The number of cores on your computer for parallel execution")
     parser.add_argument('--state-path', type=str, default="/opt/train/stateSaving/saveStates/",
                         help="The path to the state file to commence training from")
-    parser.add_argument('--input-distance', type=int, default=570,
+    parser.add_argument('--input-distance', type=int, default=40,
                         help="The target distance Mario should start training from")
     parser.add_argument('--target-distance', type=int, default=1000,
                         help="The target distance Mario should achieve before closing")
+    parser.add_argument('--checkpoint', type=str, default="",
+                        help="Resume training from a saved checkpoint")
     args = parser.parse_args()
 
     # Setup logger
@@ -105,7 +110,7 @@ def main():
     END_DISTANCE = args.target_distance
 
     # Evolve!
-    evolve(config=config, num_cores=args.num_cores)
+    evolve(config=config, num_cores=args.num_cores, checkpoint=args.checkpoint)
 
 
 if __name__ == '__main__':
