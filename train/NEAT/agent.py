@@ -13,10 +13,6 @@ from testbed.training import neat as neat_
 # -----------------------------------------------------------------------------
 
 GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
-STATE_PATH = None
-START_DISTANCE = None
-END_DISTANCE = None
-ENV = None
 
 
 # -----------------------------------------------------------------------------
