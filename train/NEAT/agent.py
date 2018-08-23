@@ -32,23 +32,22 @@ def evaluate(genome, config):
     done = False
     stuck = 0
     stuck_max = 600
-    info = {}
 
-    while not done or info['distance'] < END_DISTANCE:
-        env.loadSaveStateFile(START_DISTANCE)
-        observation = env.reset()
+    env.loadSaveStateFile(START_DISTANCE)
+    observation = env.reset()
 
+    while not done:
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
         observation, reward, done, info = env.step(outputs)
         stuck += 1 if reward <= 0 else 0
 
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
-        if stuck > stuck_max:
+        # Also not sure what will happen with END_DISTANCE when in a pipe..
+        if stuck > stuck_max or info['distance'] > END_DISTANCE:
             break
-       # if info['life'] == 0:
-       #     break
 
-        env.close()
+    env.close()
+
     return neat_.calculate_fitness(info)
 
 
