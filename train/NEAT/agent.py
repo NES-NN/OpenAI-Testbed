@@ -78,7 +78,7 @@ def evolve(config, num_cores, checkpoint):
         with open('Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
 
-        if stats.get_fitness_mean()[-1:][0] >= END_DISTANCE:
+        if stats.get_fitness_mean()[-1] >= END_DISTANCE:
             break
 
 
