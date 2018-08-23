@@ -16,7 +16,12 @@ GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 STATE_PATH = None
 START_DISTANCE = 40
 END_DISTANCE = 100
+ENV = None
 
+
+# -----------------------------------------------------------------------------
+#  HELPERS
+# -----------------------------------------------------------------------------
 
 def get_env():
     env = gym.make(GYM_NAME)
@@ -25,20 +30,24 @@ def get_env():
     return env
 
 
+# -----------------------------------------------------------------------------
+#  NEAT TRAINING
+# -----------------------------------------------------------------------------
+
+
 def evaluate(genome, config):
-    env = get_env()
     net = neat.nn.FeedForwardNetwork.create(genome, config)
 
     done = False
     stuck = 0
     stuck_max = 600
 
-    env.loadSaveStateFile(START_DISTANCE)
-    observation = env.reset()
+    ENV.loadSaveStateFile(START_DISTANCE)
+    observation = ENV.reset()
 
     while not done:
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
-        observation, reward, done, info = env.step(outputs)
+        observation, reward, done, info = ENV.step(outputs)
         stuck += 1 if reward <= 0 else 0
 
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
@@ -46,7 +55,7 @@ def evaluate(genome, config):
         if stuck > stuck_max or info['distance'] > END_DISTANCE:
             break
 
-    env.close()
+    ENV.close()
 
     return neat_.calculate_fitness(info)
 
@@ -73,9 +82,10 @@ def evolve(config, num_cores, checkpoint):
         # Save the best Genome from the last 5 gens.
         with open('Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
-        
+
         if stats.get_fitness_mean()[0] > END_DISTANCE:
             break
+
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
@@ -107,6 +117,8 @@ def main():
     START_DISTANCE = args.input_distance
     global END_DISTANCE
     END_DISTANCE = args.target_distance
+    global ENV
+    ENV = get_env()
 
     # Evolve!
     evolve(config=config, num_cores=args.num_cores, checkpoint=args.checkpoint)
