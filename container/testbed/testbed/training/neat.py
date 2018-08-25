@@ -1,9 +1,10 @@
 """
     neat.py
 """
-
+import gym
 import neat
 import numpy as np
+from ppaquette_gym_super_mario.wrappers import *
 
 
 # -----------------------------------------------------------------------------
@@ -42,3 +43,17 @@ def clean_outputs(outputs):
 def calculate_fitness(info):
     """Calculates a fitness score based on Gym information"""
     return info['distance']
+
+
+def generate_env_arr(start = 0, end = 32):
+    env = []
+    for i in range(start, end):
+        env.append(
+            gym.make(
+                'ppaquette/SuperMarioBros-{:d}-{:d}-Tiles-v0'.format(
+                    int((i / 4) + 1),
+                    int((i % 4) + 1)
+                )
+            )
+        )
+    return env
