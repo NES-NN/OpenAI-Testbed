@@ -52,12 +52,12 @@ def get_env(gym_name, session_dir):
     return env
 
 
-def generate_env_arr(start=0, end=32, session_dir='session/'):
+def generate_env_arr(session_dir, start=0, end=32):
     env = []
     for i in range(start, end):
         env.append(
             get_env(
-                'ppaquette/SuperMarioBros-{:d}-{:d}-Tiles-v0'.format(
+                'ppaquette/SavingSuperMarioBros-{:d}-{:d}-Tiles-v0'.format(
                     int((i / 4) + 1),
                     int((i % 4) + 1)
                 ),
