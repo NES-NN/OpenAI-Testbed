@@ -944,10 +944,8 @@ function main_loop()
     
     --load saved state if not already loaded.
     if saveStateFolder ~= "" and (is_reload == 1) then
-		local level = get_level(); --(0 to 31)
-		if (level > 31) then --level not yet initialised
-			level = 0;
-		end;
+		--local level = get_level(); --(0 to 31)
+		level = ((target_world - 1) * 4 + (target_level - 1));					
         lastSaveBuffer = load_saved_state_from_disk(saveStateFolder, level, loadFromDistance);        
     end;
 
