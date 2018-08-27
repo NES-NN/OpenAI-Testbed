@@ -287,7 +287,7 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
         self.launch_vars['is_reload'] = 1  #always reload when folder changed
 
     def __init__(self, draw_tiles=False, level=0):
-        SuperMarioBrosEnv.__init__(self, draw_tiles=draw_tiles, level=0)
+        SuperMarioBrosEnv.__init__(self, draw_tiles=draw_tiles, level=level)
         logger.info("Starting the SavingSuperMarioBros Environment...")
         
         #saveState
