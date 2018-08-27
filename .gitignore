@@ -4,6 +4,7 @@
 
 # Generated files from training
 neat-checkpoint-*
+*.fcs
 
 # Generated files from compilation
 build/*
@@ -14,3 +15,6 @@ build/*
 /.vscode
 *.idea/*
 *venv/*
+
+# Default training session results directory
+train/NEAT/session/

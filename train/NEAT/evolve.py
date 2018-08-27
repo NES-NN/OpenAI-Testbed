@@ -19,8 +19,7 @@ def eval_genome(genome, config):
     info = {}
 
 
-    for i in range(0, 32):
-        ENV_ARR[i].loadSaveStateFile(MAX_DISTANCE[i])
+    for i in range(1, 32):
         observation = ENV_ARR[i].reset()
         done = False
         stuck = 0
@@ -86,7 +85,7 @@ def run(config, num_cores):
                                filename=SESSION_DIR + 'speciation.svg')
 
         # Save the best Genome from the last 5 gens.
-        with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
+        with open(SESSION_DIR + 'Best/{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
 
 
