@@ -14,7 +14,7 @@ level_matrix = {
     { 8, 1, 1 }, { 8, 2, 2 }, { 8, 3, 3 }, { 8, 4, 4 }
 };
 start_delay = 175; -- Delay before pressing the start button
-save_directory = "/opt/train/stateSaving/saveStates-josh"
+save_directory = os.getenv("SMB_STATE_SAVE_DIR")
 
 -- ===========================
 --         Variables
