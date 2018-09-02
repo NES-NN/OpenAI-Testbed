@@ -4,14 +4,14 @@ emu.speedmode("normal") -- Set the speed of the emulator
 --         Constants
 -- ===========================
 level_matrix = {
-    { 1, 1, 1 }, { 1, 2, 3 }, { 1, 3, 4 }, { 1, 4, 5 },
-    { 2, 1, 1 }, { 2, 2, 3 }, { 2, 3, 4 }, { 2, 4, 5 },
-    { 3, 1, 1 }, { 3, 2, 2 }, { 3, 3, 3 }, { 3, 4, 4 },
-    { 4, 1, 1 }, { 4, 2, 3 }, { 4, 3, 4 }, { 4, 4, 5 },
-    { 5, 1, 1 }, { 5, 2, 2 }, { 5, 3, 3 }, { 5, 4, 4 },
-    { 6, 1, 1 }, { 6, 2, 2 }, { 6, 3, 3 }, { 6, 4, 4 },
-    { 7, 1, 1 }, { 7, 2, 3 }, { 7, 3, 4 }, { 7, 4, 5 },
-    { 8, 1, 1 }, { 8, 2, 2 }, { 8, 3, 3 }, { 8, 4, 4 }
+    { 1, 1, 1 }, { 1, 2, 1 }, { 1, 3, 1 }, { 1, 4, 1 },
+    { 2, 1, 1 }, { 2, 2, 1 }, { 2, 3, 1 }, { 2, 4, 1 },
+    { 3, 1, 1 }, { 3, 2, 1 }, { 3, 3, 1 }, { 3, 4, 1 },
+    { 4, 1, 1 }, { 4, 2, 1 }, { 4, 3, 1 }, { 4, 4, 1 },
+    { 5, 1, 1 }, { 5, 2, 1 }, { 5, 3, 1 }, { 5, 4, 1 },
+    { 6, 1, 1 }, { 6, 2, 1 }, { 6, 3, 1 }, { 6, 4, 1 },
+    { 7, 1, 1 }, { 7, 2, 1 }, { 7, 3, 1 }, { 7, 4, 1 },
+    { 8, 1, 1 }, { 8, 2, 1 }, { 8, 3, 1 }, { 8, 4, 1 }
 };
 start_delay = 175; -- Delay before pressing the start button
 save_directory = os.getenv("SMB_STATE_SAVE_DIR")
@@ -58,7 +58,8 @@ addr_time = 0x07f8;
 --         Save State
 -- ===========================
 function save_state_to_file()
-    savestate_object = savestate.create(save_directory .. "/" .. target_world .. "-" .. target_level .. "-" .. target_area .. ".fcs")
+    local savestate_level = (target_world - 1) * 4 + (target_level - 1)
+    local savestate_object = savestate.create(save_directory .. "/" .. savestate_level .. "-0.fcs")
     savestate.save(savestate_object);
     savestate.persist(savestate_object);  
 end;
