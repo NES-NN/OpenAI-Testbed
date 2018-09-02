@@ -30,7 +30,6 @@ running_thread = 0;         -- To avoid 2 threads running at the same time
 target_world = nil;         -- The target world
 target_level = nil;         -- The target level
 target_area = nil;          -- The target area
-filename = nil;             -- The filename to save state out to
 
 --resets all variables back to defaults
 function reset_vars()
@@ -45,7 +44,6 @@ function reset_vars()
     target_world = nil;
     target_level = nil;
     target_area = nil;
-    filename = nil;
 end;
 
 -- ===========================
