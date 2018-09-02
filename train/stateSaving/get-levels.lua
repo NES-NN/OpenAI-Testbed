@@ -14,6 +14,7 @@ level_matrix = {
     { 8, 1, 1 }, { 8, 2, 2 }, { 8, 3, 3 }, { 8, 4, 4 }
 };
 start_delay = 175; -- Delay before pressing the start button
+save_directory = "/opt/train/stateSaving/saveStates-josh"
 
 -- ===========================
 --         Variables
@@ -56,6 +57,15 @@ addr_area = 0x0760;
 addr_time = 0x07f8;
 
 -- ===========================
+--         Save State
+-- ===========================
+function save_state_to_file()
+    savestate_object = savestate.create(save_directory .. "/" .. target_world .. "-" .. target_level .. "-" .. target_area .. ".fcs")
+    savestate.save(savestate_object);
+    savestate.persist(savestate_object);  
+end;
+
+-- ===========================
 --         Functions
 -- ===========================
 function hook_set_world()
@@ -74,27 +84,6 @@ function hook_set_area()
     memory.writebyte(addr_world, (target_world - 1));
     memory.writebyte(addr_level, (target_level - 1));
     memory.writebyte(addr_area, (target_area - 1));
-end;
-
---load savestate
---https://stackoverflow.com/questions/5303174/how-to-get-list-of-directories-in-lua
-function dir_lookup(dir)
-    files = {}
-    local p = io.popen('find "'..dir..'" -type f')  --Open directory look for files, save data in p. By giving '-type f' as parameter, it returns all files.     
-    for file in p:lines() do                        --Loop through all files
-       table.insert(files, file)
-    end
-    return files;
-end
-
---lets copy that file, but rename it according to frame_number
-function copy_file(frame_number)
-    infile = io.open(filename, "rb");
-    source_content = infile:read("*all");
-    new_saved_state_file = "/opt/train/stateSaving/saveStates-josh/" .. frame_number .. ".fcs";
-    file = io.open(new_saved_state_file, "wb");
-    file:write(source_content);
-    file:close();
 end;
 
 -- readbyterange - Reads a range of bytes and return a number
@@ -161,9 +150,13 @@ function load_and_save_state()
 
     -- Game has started; save state and move to next
     elseif is_started == 1 then
-        for i=1,20,1 do
+        -- Let the game run for a bit before saving
+        for i=1,50,1 do
             emu.frameadvance();
         end
+
+        -- Save the level state to file
+        save_state_to_file();
 
         -- Signal that we have finished
         loaded_and_saved_state = 1;
