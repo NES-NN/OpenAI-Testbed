@@ -189,6 +189,8 @@ class SuperMarioBrosEnv(NesEnv):
         return None
 
     def _process_pipe_message(self, message):
+        #keep this logger for debugging 
+        #logger.info(message);
         # Parsing
         parts = message.split('#')
         header = parts[0] if len(parts) > 0 else ''
@@ -269,3 +271,36 @@ class MetaSuperMarioBrosEnv(SuperMarioBrosEnv, MetaNesEnv):
         std_reward = min(1000, std_reward)  # Cannot be more than 1,000
         std_reward = max(0, std_reward)  # Cannot be less than 0
         return std_reward
+
+
+class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):  
+    @property
+    def saveStateFolder(self):
+        return self._saveStateFolder
+
+    @saveStateFolder.setter
+    def saveStateFolder(self, value):
+        self._saveStateFolder = value
+        logger.info("['save_state_folder'] = {}".format(value))
+        logger.info("['is_reload'] = 1")
+        self.launch_vars['save_state_folder'] = value
+        self.launch_vars['is_reload'] = 1  # always reload when folder changed
+
+    def __init__(self, draw_tiles=False, level=0):
+        SuperMarioBrosEnv.__init__(self, draw_tiles=draw_tiles, level=level)
+        logger.info("Starting the SavingSuperMarioBros Environment...")
+        
+        #saveState
+        self._saveStateFolder = ''  
+        self.shouldReloadFromSavedState = False        
+        self.reloadState = False
+    
+    def loadState(self, path, distance):      
+        logger.info("setting launch_vars for next reset to load state file:")
+        logger.info("['save_state_folder'] = {}".format(path)) 
+        logger.info("['load_from_distance'] = {}".format(distance))
+        logger.info("['is_reload'] = 1")
+        self.launch_vars['save_state_folder'] = path
+        self.launch_vars['load_from_distance'] = distance
+        self.launch_vars['is_reload'] = 1 # is_reload triggers loading state file on next reset
+        

@@ -6,7 +6,7 @@
 
 -- ** Parameters **
 -- target = "111";          -- World Number - Level Number - Area Number
--- mode = "algo";           -- algo, human
+-- mode = "algo";           -- algo, human, normal
 -- draw_tiles = "1";
 -- meta = "0"               -- meta indicates multiple mission
 -- pipe_name = "abc";
@@ -26,6 +26,10 @@ draw_tiles = tonumber(draw_tiles) or 0;
 meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
+
+save_state_folder = save_state_folder or "";
+load_from_distance = tonumber(load_from_distance) or 2; --since or statefile starts at 1, we start just past it.
+is_reload = tonumber(is_reload) or 0;
 
 -- Parsing world
 if target then
@@ -113,6 +117,12 @@ if mode == "human" then
     skip_commands = 1;
     start_delay = 125;
 
+elseif mode == "normal" then    
+    emu.speedmode("normal");
+    --skip_frames = 1;  --would be great to switch this to 1, but current NNs not working well with it.
+    skip_frames = 2;
+    start_delay = 175;
+    send_all_pixels = 1500;
 else
     -- algo
     emu.speedmode("maximum");
@@ -243,6 +253,11 @@ function get_life()
     return life;
 end;
 
+-- set_life - sets lives to 3
+function set_life()
+    memory.writebyte(addr_life, 2); --2 since 0 based    
+end;
+
 -- get_score - Returns the current player score (0 to 999990)
 function get_score()
     return tonumber(readbyterange(addr_score, 6));
@@ -358,6 +373,83 @@ function show_curr_distance()
     local distance = "Distance " .. curr_x_position;
     distance = distance .. " (" .. get_distance_perc(curr_x_position, max_distance) .. ")";
     return emu.message(distance);
+end;
+
+-- ===========================
+--      ** SAVE STATE **
+-- ===========================
+--https://stackoverflow.com/questions/5303174/how-to-get-list-of-directories-in-lua
+function dir_lookup(dir)
+    files = {}
+   local p = io.popen('find "'..dir..'" -type f')  -- Open directory look for files, save data in p. By giving '-type f' as parameter, it returns all files.     
+   for file in p:lines() do                        -- Loop through all files
+       table.insert(files,file)
+   end
+   return files;
+end
+
+function pick_closest_file(dir, level, from_distance)
+    local matchingFile = nil;
+    local gap = from_distance;
+    local files = dir_lookup(dir);
+
+    if (#files < 1) then
+        gui.text(5,50, "No files in: " .. dir);
+        -- emu.pause(); --make it obvious there is an error
+        return nil;
+    end;
+
+    for i=1, #files, 1 do
+        -- file will be the full path and file name
+        file = files[i];
+
+        -- level-distance.fcs aka number-number.fcs
+        if file:match("%d+-%d+%.fcs$") then
+            file_name = file:match("%d+-%d+%.fcs$")
+            local file_level = tonumber(file_name:match("^%d+"));
+            local distance = tonumber(file_name:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
+
+            if (file_level == level) then
+                -- we want the file that is closest to the from_distance without being passed it
+                if (((from_distance - distance) < gap) and (distance < from_distance)) then
+                    gap = from_distance - distance;
+                    matchingFile = file;
+                end;
+            end;
+        end;
+    end;
+    return matchingFile;
+end;
+
+function file_exists(name)
+    local f=io.open(name,"r")
+    if f~=nil then io.close(f) return true else return false end
+end
+
+-- loads a saved state from disk
+function load_saved_state_from_disk(folder, level, distance)
+    local filename = pick_closest_file(folder, level, distance);
+    
+    if (filename ~= nil) then
+        gui.text(5,50, "Loading: " .. filename);
+        local save_buffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
+        savestate.load(save_buffer);
+
+        -- memory hack since this script thinks any saved state with lives < 3 means mario is dead!
+        set_life();
+
+        is_reload = 0;
+    -- else
+        -- gui.text(5,50, "Missing file for level: ".. level .. " pre " .. distance);
+        -- emu.pause(); --make it obvious there is an error
+    end;
+end;
+
+-- saves the current state to disk
+function save_state_to_file()
+    local savestate_object = savestate.create(save_state_folder .. get_level() .. "-" .. curr_x_position .. ".fcs")
+    savestate.save(savestate_object);
+    savestate.persist(savestate_object);  
 end;
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
@@ -707,6 +799,8 @@ function parse_commands(line)
     elseif "exit" == command then
         close_pipes();
         os.exit()
+    elseif "save" == command then
+        save_state_to_file()
     end;
     return;
 end;
@@ -815,6 +909,15 @@ function main_loop()
         return;
     end;
     running_thread = 1;
+    
+    --load saved state if not already loaded.
+    if save_state_folder ~= "" and (is_reload == 1) then
+        --local level = get_level(); --(0 to 31)
+        level = ((target_world - 1) * 4 + (target_level - 1));
+        load_saved_state_from_disk(save_state_folder, level, load_from_distance);     
+    end;
+
+    --load state likely messes with framecount, so moving below
     local framecount = emu.framecount();
 
     -- Checking if game is started or is finished

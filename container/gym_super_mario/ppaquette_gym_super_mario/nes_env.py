@@ -14,7 +14,7 @@ import gym
 from gym import utils, spaces
 from gym.utils import seeding
 
-SEARCH_PATH = os.pathsep.join([os.environ['PATH'], '/usr/games', '/usr/local/games'])
+SEARCH_PATH = os.pathsep.join([os.environ['PATH'], '/opt/gym_super_mario/fceux'])#'/usr/games', '/usr/local/games']) #use custom build
 FCEUX_PATH = spawn.find_executable('fceux', SEARCH_PATH)
 if FCEUX_PATH is None:
     raise gym.error.DependencyNotInstalled("fceux is required. Try installing with apt-get install fceux.")
@@ -86,6 +86,9 @@ class NesEnv(gym.Env, utils.EzPickle):
         # Seeding
         self.curr_seed = 0
         self._seed()
+
+        # Should Save game State on next step
+        self.saveState = False
 
     def _configure(self, rom_path=None, lock=None):
         if rom_path is not None:
@@ -273,6 +276,12 @@ class NesEnv(gym.Env, utils.EzPickle):
         if 0 == self.is_initialized:
             return self._get_state(), 0, self._get_is_finished(), {}
 
+        #State save/load -- uses strange "flag for method call" convention
+        if self.saveState:
+            logger.info("save game state command raised")
+            self.saveGameState()
+            self.saveState = False
+
         if NUM_ACTIONS != len(action):
             logger.warn('NES action list must contain %d items. Padding missing items with 0' % NUM_ACTIONS)
             old_action = action
@@ -376,6 +385,11 @@ class NesEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self.viewer = rendering.SimpleImageViewer()
             self.viewer.imshow(img)
+
+            
+    def saveGameState(self):        
+        logger.info("save sent to pipe")
+        self._write_to_pipe('save')
 
     def close(self):
         self.is_exiting = 1

@@ -1,26 +1,20 @@
+# Required files for training
+!train/NEAT/config-feedforward
+!train/*.py
+!train/State/*.fcs
+
+# Generated files from training
+neat-checkpoint-*
+
+# Generated files from compilation
 build/*
-train/snapshots/*
 *.pyc
 
-train/\.vscode/
+# IDE List
+/.vs
+/.vscode
+*.idea/*
+*venv/*
 
-train/NEAT/snapshots/*
-train/NEAT/neat_network*
-train/NEAT/parallel_info.ndjson
-train/Random/snapshots/*
-
-train/NEAT/checkpoint
-
-train/NEAT/core
-
-train/NEAT/fitness_history\.csv
-
-train/NEAT/speciation\.csv
-
-train/NEAT/species_fitness\.csv
-
-train/NEAT/winner\.pkl
-.vscode/launch.json
-.vscode/settings.json
-gymBin/*
-testbedenv/*
+# Default training session results directory
+train/NEAT/session/
