@@ -59,7 +59,7 @@ def load_checkpoint(config):
         checkpoint = max([x.split("-")[-1] for x in os.listdir(checkpoint_directory) if x.startswith("neat-checkpoint-")])
         print ("Found checkpoint at gen :" + str(checkpoint) + "... Loading...")
         return neat.Checkpointer.restore_checkpoint(checkpoint_directory + "neat-checkpoint-" + checkpoint)
-    except ValueError:
+    except Exception:
         print("No saved session found, creating new population")
         return neat.Population(config)
 

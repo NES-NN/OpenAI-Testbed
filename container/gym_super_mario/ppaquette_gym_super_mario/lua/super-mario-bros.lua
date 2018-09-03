@@ -27,8 +27,8 @@ meta = tonumber(meta) or 0;
 pipe_name = pipe_name or "";
 pipe_prefix = pipe_prefix or "";
 
-saveStateFolder = saveStateFolder or "";
-loadFromDistance = tonumber(loadFromDistance) or 2; --since or statefile starts at 1, we start just past it.
+save_state_folder = save_state_folder or "";
+load_from_distance = tonumber(load_from_distance) or 2; --since or statefile starts at 1, we start just past it.
 is_reload = tonumber(is_reload) or 0;
 
 -- Parsing world
@@ -154,12 +154,6 @@ addr_enemy_y = 0xcf;
 addr_injury_timer = 0x079e;
 addr_swimming_flag = 0x0704;
 addr_tiles = 0x500;
-
--- ===========================
---         SaveBuffers
--- ===========================
-lastSaveBuffer = nil;
-lastSaveFile = nil;
 
 -- ===========================
 --         Functions
@@ -385,40 +379,46 @@ end;
 --      ** SAVE STATE **
 -- ===========================
 --https://stackoverflow.com/questions/5303174/how-to-get-list-of-directories-in-lua
-function dirLookup(dir)
-	files = {}
-   local p = io.popen('find "'..dir..'" -type f')  --Open directory look for files, save data in p. By giving '-type f' as parameter, it returns all files.     
-   for file in p:lines() do                         --Loop through all files
-	   table.insert(files,file)
+function dir_lookup(dir)
+    files = {}
+   local p = io.popen('find "'..dir..'" -type f')  -- Open directory look for files, save data in p. By giving '-type f' as parameter, it returns all files.     
+   for file in p:lines() do                        -- Loop through all files
+       table.insert(files,file)
    end
    return files;
 end
 
 function pick_closest_file(dir, level, from_distance)
-	local matchingFile = nil;
-	local gap = from_distance;
-	local files = dirLookup(dir);
-	if (#files < 1) then
-		gui.text(5,50, "No files in: " .. dir);
-        emu.pause(); --make it obvious there is an error
+    local matchingFile = nil;
+    local gap = from_distance;
+    local files = dir_lookup(dir);
+
+    if (#files < 1) then
+        gui.text(5,50, "No files in: " .. dir);
+        -- emu.pause(); --make it obvious there is an error
+        return nil;
     end;
 
-	for i=1, #files, 1 do
-		file = files[i]; --file will be the full path and file name
-		if file:match("%d+-%d+%.fcs$") then --level-distance.fcs aka number-number.fcs
-			file_name = file:match("%d+-%d+%.fcs$")
-			local file_level = tonumber(file_name:match("^%d+"));
-			local distance = tonumber(file_name:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
-			if (file_level == level) then
-				--we want the file that is closest to the from_distance without being passed it
-				if (((from_distance - distance) < gap) and (distance < from_distance)) then
-					gap = from_distance - distance;
-					matchingFile = file;
-				end;		
-			end;
-		end;
-	end;
-	return matchingFile;
+    for i=1, #files, 1 do
+        -- file will be the full path and file name
+        file = files[i];
+
+        -- level-distance.fcs aka number-number.fcs
+        if file:match("%d+-%d+%.fcs$") then
+            file_name = file:match("%d+-%d+%.fcs$")
+            local file_level = tonumber(file_name:match("^%d+"));
+            local distance = tonumber(file_name:match("%d+%.fcs$"):sub(1,-5)); --cut off extention
+
+            if (file_level == level) then
+                -- we want the file that is closest to the from_distance without being passed it
+                if (((from_distance - distance) < gap) and (distance < from_distance)) then
+                    gap = from_distance - distance;
+                    matchingFile = file;
+                end;
+            end;
+        end;
+    end;
+    return matchingFile;
 end;
 
 function file_exists(name)
@@ -426,61 +426,30 @@ function file_exists(name)
     if f~=nil then io.close(f) return true else return false end
 end
 
+-- loads a saved state from disk
 function load_saved_state_from_disk(folder, level, distance)
-    filename = pick_closest_file(folder, level, distance);
-	
-	if (filename ~= nil) then
-		gui.text(5,50, "Loading: " .. filename);
-		lastSaveFile = filename;
-        saveBuffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
-        savestate.load(saveBuffer); 
-        --memory hack since this script thinks any saved state with lives < 3 means mario is dead!
+    local filename = pick_closest_file(folder, level, distance);
+    
+    if (filename ~= nil) then
+        gui.text(5,50, "Loading: " .. filename);
+        local save_buffer = savestate.create(filename); --"/opt/train/stateSaving/saveStates/test.fcs"
+        savestate.load(save_buffer);
+
+        -- memory hack since this script thinks any saved state with lives < 3 means mario is dead!
         set_life();
 
         is_reload = 0;
-    else
-        gui.text(5,50, "Missing file for level: ".. level .. " pre " .. distance);
-        emu.pause(); --make it obvious there is an error
+    -- else
+        -- gui.text(5,50, "Missing file for level: ".. level .. " pre " .. distance);
+        -- emu.pause(); --make it obvious there is an error
     end;
-    return saveBuffer;
 end;
 
-function copy_file(source, destination)
-	infile = io.open(source,"rb"); 
-	source_content = infile:read("*all")
-	file = io.open(destination, "wb")
-	file:write(source_content)
-	file:close();
-	infile:close();
-end;
-
-function snapshot_and_save_to_disk(saveBuffer, folder)
-    if (saveBuffer == nil) then
-        gui.text(50,50, "cannot save, lost buffer :(");
-        emu.pause(); --make it obvious there is an error
-    else
-        gui.text(50,50, "snapshot_and_save_to_disk called");
-		if lastSaveFile ~= "" then
-			--first we need to backup the savestate File
-			backupName = lastSaveFile .. "b";
-			copy_file(lastSaveFile,backupName);
-			--now we save the new state, which overwrites the current save file 
-			savestate.save(saveBuffer);
-			savestate.persist(saveBuffer);
-			--now we make a copy with the right name: level (world & level)- distance.fcs
-			new_saved_state_file = folder .. get_level() .."-".. curr_x_position .. ".fcs"
-			copy_file(lastSaveFile,new_saved_state_file)
-			--finally restore the backup to keep the last savefile correct.
-			copy_file(backupName,lastSaveFile);
-			--delete backup file
-			os.remove(backupName);
-		else
-			gui.text(5,50, "No file:" .. lastSaveFile);
-			emu.pause(); --make it obvious there is an error
-			
-		end;
-
-    end;
+-- saves the current state to disk
+function save_state_to_file()
+    local savestate_object = savestate.create(save_state_folder .. get_level() .. "-" .. curr_x_position .. ".fcs")
+    savestate.save(savestate_object);
+    savestate.persist(savestate_object);  
 end;
 
 -- get_data - Returns the current player stats data (reward, distance, life, scores, coins, timer, player_status, is_finished)
@@ -831,8 +800,7 @@ function parse_commands(line)
         close_pipes();
         os.exit()
     elseif "save" == command then
-        --might be good to validate that data
-        snapshot_and_save_to_disk(lastSaveBuffer, saveStateFolder)       
+        save_state_to_file()
     end;
     return;
 end;
@@ -943,10 +911,10 @@ function main_loop()
     running_thread = 1;
     
     --load saved state if not already loaded.
-    if saveStateFolder ~= "" and (is_reload == 1) then
-		--local level = get_level(); --(0 to 31)
-		level = ((target_world - 1) * 4 + (target_level - 1));					
-        lastSaveBuffer = load_saved_state_from_disk(saveStateFolder, level, loadFromDistance);        
+    if save_state_folder ~= "" and (is_reload == 1) then
+        --local level = get_level(); --(0 to 31)
+        level = ((target_world - 1) * 4 + (target_level - 1));
+        load_saved_state_from_disk(save_state_folder, level, load_from_distance);     
     end;
 
     --load state likely messes with framecount, so moving below
