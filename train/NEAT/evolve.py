@@ -93,14 +93,12 @@ def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Trainer')
     parser.add_argument('--config-file', type=str, default="config-feedforward",
                         help="The path to the NEAT parameter config file to use")
-    parser.add_argument('--generations', type=int, default=-1,
-                        help="The number of generations to evolve the network")
     parser.add_argument('--session', type=str, default="session",
                         help="Where to put states and checkpoints")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
     parser.add_argument('--display', type=str, default=":1",
-                        help="The number of cores on your computer for parallel execution")
+                        help="The display to bind to to allow FCEUX to launch")
     args = parser.parse_args()
 
     global SESSION_DIR

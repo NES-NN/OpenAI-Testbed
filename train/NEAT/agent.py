@@ -91,7 +91,7 @@ def load_checkpoint(config):
         return neat.Population(config)
 
 
-def evolve(config, num_cores, checkpoint):
+def evolve(config, num_cores):
     pop = load_checkpoint(config)
     pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-"))
     pop.add_reporter(neat.StdOutReporter(True))
@@ -120,7 +120,7 @@ def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
     parser.add_argument('--config-path', type=str, default="/opt/train/NEAT/config-feedforward",
                         help="The path to the NEAT parameter config file to use")
-    parser.add_argument('--num-cores', type=int, default=3,
+    parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
     parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
                         help="The directory to pull and store states from")
@@ -130,8 +130,6 @@ def main():
                         help="The target distance Mario should start training from")
     parser.add_argument('--target-distance', type=int, default=1000,
                         help="The target distance Mario should achieve before closing")
-    parser.add_argument('--checkpoint', type=str, default="",
-                        help="Resume training from a saved checkpoint")
     args = parser.parse_args()
 
     # Setup logger
@@ -170,7 +168,7 @@ def main():
     ENV = get_env()
 
     # Evolve!
-    evolve(config=config, num_cores=args.num_cores, checkpoint=args.checkpoint)
+    evolve(config=config, num_cores=args.num_cores)
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@
 container_dir  = container
 build_dir      = build
 train_dir      = train
+util_dir       = util
 
 depend_log     = $(build_dir)/.depend
 
@@ -24,6 +25,7 @@ up-nix: down
 		-p 5900:5900 \
 		-p 8000:8000 \
 		-v $(shell pwd)/$(train_dir):/opt/$(train_dir) \
+		-v $(shell pwd)/$(util_dir):/opt/$(util_dir) \
 		-d $(container_tag)
 
 up-win: down
@@ -33,6 +35,7 @@ up-win: down
 		-p 5900:5900 \
 		-p 8000:8000 \
 		-v /c/workspace/OpenAI-Testbed/$(train_dir):/opt/$(train_dir) \
+		-v /c/workspace/OpenAI-Testbed/$(util_dir):/opt/$(util_dir) \
 		-d $(container_tag)
 
 down:

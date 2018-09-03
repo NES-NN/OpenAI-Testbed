@@ -1,6 +1,10 @@
-import neat
-import pickle
 import argparse
+import logging
+import pickle
+import neat
+import gym
+import numpy as np
+import os
 from ppaquette_gym_super_mario.wrappers import *
 from testbed.training import neat as neat_
 
@@ -9,15 +13,25 @@ from testbed.training import neat as neat_
 #  GLOBALS
 # -----------------------------------------------------------------------------
 
-ENV_ARR = neat_.generate_env_arr()
+GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
+ENV = None
+
+
+# -----------------------------------------------------------------------------
+#  HELPERS
+# -----------------------------------------------------------------------------
+
+def get_env():
+    return gym.make(GYM_NAME)
 
 
 # -----------------------------------------------------------------------------
 #  NEAT PLAYER
 # -----------------------------------------------------------------------------
+
 def play_best(config, play_best_file):
     wrapper = SetPlayingMode('normal')
-    e = wrapper(ENV_ARR[0])
+    e = wrapper(ENV)
 
     genome = pickle.load(open(play_best_file, 'rb'))
 
@@ -25,6 +39,7 @@ def play_best(config, play_best_file):
 
     done = False
     observation = e.reset()
+
     while not done:
         action = neat_.clean_outputs(net.activate(observation.flatten()))
         print('Action taken by NN : [{} {} {} {} {} {}]'.format(
@@ -39,12 +54,17 @@ def play_best(config, play_best_file):
 
 def main():
     parser = argparse.ArgumentParser(description='Play the best player form a trained NEAT Network')
-    parser.add_argument('--config-file', type=str, default="config-feedforward",
+    parser.add_argument('--config-file', type=str, required=True,
                         help="The path to the NEAT parameter config file to use")
-
+    parser.add_argument('--play-best', type=str, required=True,
+                        help="The path to the pickle output from training to load the best network")
     args = parser.parse_args()
 
-    config = neat_.load_config_with_defaults(args.config_file)
+    # Load Config
+    config = neat_.load_config_with_defaults(args.config_path)
+
+    global ENV
+    ENV = get_env()
 
     play_best(config, args.play_best)
 
