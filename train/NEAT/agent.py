@@ -3,6 +3,7 @@ import logging
 import pickle
 import neat
 import gym
+import numpy as np
 from ppaquette_gym_super_mario.wrappers import *
 from testbed.logging import visualize
 from testbed.training import neat as neat_
@@ -13,6 +14,12 @@ from testbed.training import neat as neat_
 # -----------------------------------------------------------------------------
 
 GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
+STATE_PATH = None
+START_DISTANCE = 0
+END_DISTANCE = 0
+MAX_DISTANCE = 0
+SAVE_INTERVAL = 5
+ENV = None
 
 
 # -----------------------------------------------------------------------------
@@ -41,9 +48,20 @@ def evaluate(genome, config):
     observation = ENV.reset()
 
     while not done:
+        # Get move from NN
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
+
+        # Make move
         observation, reward, done, info = ENV.step(outputs)
+
+        # Check if Mario is progressing in level
         stuck += 1 if reward <= 0 else 0
+
+        # Save out state progress
+        global MAX_DISTANCE
+        if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
+            MAX_DISTANCE = info['distance']
+            ENV.saveToStateFile()
 
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
         # Also not sure what will happen with END_DISTANCE when in a pipe..
@@ -88,7 +106,7 @@ def main():
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/opt/train/stateSaving/saveStates/",
+    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
                         help="The path to the state file to commence training from")
     parser.add_argument('--input-distance', type=int, default=40,
                         help="The target distance Mario should start training from")
@@ -108,10 +126,19 @@ def main():
     # Setup globals
     global STATE_PATH
     STATE_PATH = args.state_path
+
     global START_DISTANCE
     START_DISTANCE = args.input_distance
+
     global END_DISTANCE
     END_DISTANCE = args.target_distance
+
+    global MAX_DISTANCE
+    MAX_DISTANCE = 0
+
+    global SAVE_INTERVAL
+    SAVE_INTERVAL = 5
+
     global ENV
     ENV = get_env()
 

@@ -281,10 +281,10 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
     @saveStateFolder.setter
     def saveStateFolder(self, value):
         self._saveStateFolder = value
-        logger.info("['saveStateFolder'] = {}".format(value))
+        logger.info("['save_state_folder'] = {}".format(value))
         logger.info("['is_reload'] = 1")
-        self.launch_vars['saveStateFolder'] = value
-        self.launch_vars['is_reload'] = 1  #always reload when folder changed
+        self.launch_vars['save_state_folder'] = value
+        self.launch_vars['is_reload'] = 1  # always reload when folder changed
 
     def __init__(self, draw_tiles=False, level=0):
         SuperMarioBrosEnv.__init__(self, draw_tiles=draw_tiles, level=level)
@@ -297,10 +297,10 @@ class SavingSuperMarioBrosEnv(SuperMarioBrosEnv):
     
     def loadState(self, path, distance):      
         logger.info("setting launch_vars for next reset to load state file:")
-        logger.info("['saveStateFolder'] = {}".format(path)) 
-        logger.info("['loadFromDistance'] = {}".format(distance))
+        logger.info("['save_state_folder'] = {}".format(path)) 
+        logger.info("['load_from_distance'] = {}".format(distance))
         logger.info("['is_reload'] = 1")
-        self.launch_vars['saveStateFolder'] = path
-        self.launch_vars['loadFromDistance'] = distance
-        self.launch_vars['is_reload'] = 1 #is_reload triggers loading state file on next reset
+        self.launch_vars['save_state_folder'] = path
+        self.launch_vars['load_from_distance'] = distance
+        self.launch_vars['is_reload'] = 1 # is_reload triggers loading state file on next reset
         
