@@ -1,10 +1,10 @@
 # Required files for training
 !train/NEAT/config-feedforward
 !train/*.py
-!train/State/*.fcs
 
 # Generated files from training
-neat-checkpoint-*
+train/*.fcs
+train/*neat-checkpoint-*
 
 # Generated files from compilation
 build/*
@@ -18,3 +18,4 @@ build/*
 
 # Default training session results directory
 train/NEAT/session/
+train/NEAT/states/
