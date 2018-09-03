@@ -156,12 +156,6 @@ addr_swimming_flag = 0x0704;
 addr_tiles = 0x500;
 
 -- ===========================
---         SaveBuffers
--- ===========================
-lastSaveBuffer = nil;
-lastSaveFile = nil;
-
--- ===========================
 --         Functions
 -- ===========================
 -- Initiating variables
