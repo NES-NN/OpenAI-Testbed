@@ -19,7 +19,7 @@ def eval_genome(genome, config):
     info = {}
 
 
-    for i in range(1, 32):
+    for i in range(0, 32):
         observation = ENV_ARR[i].reset()
         done = False
         stuck = 0
