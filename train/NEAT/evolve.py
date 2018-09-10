@@ -76,7 +76,7 @@ def run(config, num_cores):
 
     pe = neat.ParallelEvaluator(num_cores, eval_genome)
 
-    while True:
+    for gen in range(500):
         winner = pop.run(pe.evaluate, 1)
 
         visualize.plot_stats(stats, ylog=False, view=False,
