@@ -3,7 +3,6 @@ import sys
 import neat
 import pickle
 import argparse
-import numpy as np
 from testbed.logging import visualize
 from testbed.training import neat as neat_
 from ppaquette_gym_super_mario.wrappers import *
@@ -33,10 +32,6 @@ def eval_genome(genome, config):
 
             # Check if Mario is progressing in level
             stuck += 1 if reward <= 0 else 0
-
-            if info['distance'] > MAX_DISTANCE[i] and info['distance'] % SAVE_INTERVAL == 0:
-                MAX_DISTANCE[i] = info['distance']
-                ENV_ARR[i].saveToStateFile()
 
             # TODO: Needs improvement, need to disable at end of level and when in a pipe.
             if stuck > stuck_max:
@@ -106,9 +101,6 @@ def main():
 
     global ENV_ARR
     ENV_ARR = neat_.generate_env_arr(SESSION_DIR + "States/")
-
-    global MAX_DISTANCE
-    MAX_DISTANCE = np.ones(32)
 
     global SAVE_INTERVAL
     SAVE_INTERVAL = 5
