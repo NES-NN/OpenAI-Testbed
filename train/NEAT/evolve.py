@@ -62,7 +62,7 @@ def load_checkpoint(config):
 
 
 def log(stats):
-    generation = range(len(stats.most_fit_genomes))
+    generation = len(stats.most_fit_genomes)
     best_fitness = [c.fitness for c in stats.most_fit_genomes]
     avg_fitness = np.array(stats.get_fitness_mean())
     stdev_fitness = np.array(stats.get_fitness_stdev())
@@ -70,7 +70,7 @@ def log(stats):
     with open('stats.csv', mode='w') as stats_file:
         stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        stats_writer.writerow([generation, best_fitness, avg_fitness, stdev_fitness])
+        stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
 
 
 def run(config, num_cores):
