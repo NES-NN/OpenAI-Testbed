@@ -1,8 +1,10 @@
 import os
 import sys
+import csv
 import neat
 import pickle
 import argparse
+import numpy as np
 from testbed.logging import visualize
 from testbed.training import neat as neat_
 from ppaquette_gym_super_mario.wrappers import *
@@ -59,10 +61,21 @@ def load_checkpoint(config):
         return neat.Population(config)
 
 
+def log(stats):
+    generation = range(len(stats.most_fit_genomes))
+    best_fitness = [c.fitness for c in stats.most_fit_genomes]
+    avg_fitness = np.array(stats.get_fitness_mean())
+    stdev_fitness = np.array(stats.get_fitness_stdev())
+
+    with open('stats.csv', mode='w') as stats_file:
+        stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        stats_writer.writerow([generation, best_fitness, avg_fitness, stdev_fitness])
+
+
 def run(config, num_cores):
     pop = load_checkpoint(config)
 
-    # Checkpoint every 5 generations or 10 min.
     pop.add_reporter(neat.Checkpointer(1, 600, SESSION_DIR + "checkpoints/neat-checkpoint-"))
 
     pop.add_reporter(neat.StdOutReporter(True))
@@ -78,6 +91,8 @@ def run(config, num_cores):
                              filename=SESSION_DIR + 'avg_fitness.svg')
         visualize.plot_species(stats, view=False,
                                filename=SESSION_DIR + 'speciation.svg')
+
+        log(stats)
 
         # Save the best Genome from the last 5 gens.
         with open(SESSION_DIR + 'Best/{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
