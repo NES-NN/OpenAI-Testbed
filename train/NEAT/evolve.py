@@ -67,7 +67,7 @@ def log(stats):
     avg_fitness = np.array(stats.get_fitness_mean())
     stdev_fitness = np.array(stats.get_fitness_stdev())
 
-    with open('stats.csv', mode='w') as stats_file:
+    with open('stats.csv', mode='a') as stats_file:
         stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
