@@ -72,14 +72,13 @@ def evaluate(genome, config):
 
     train_length = 300
 
-    for stuck_point in [500, 1000, 1500, 2000, 2500]:
+    for stuck_point in [530, 1320, 1600, 2204, 2800]:
         done = False
         stuck = 0
         stuck_max = 600
-        fitness = 0
-
         ENV.loadSaveStateFile(stuck_point)
         observation = ENV.reset()
+        info = {}
 
         while not done:
             # Get move from NN
@@ -88,15 +87,14 @@ def evaluate(genome, config):
             # Make move
             observation, reward, done, info = ENV.step(outputs)
 
-            fitness += reward
-
             # Check if Mario is progressing in level
             stuck += 1 if reward <= 0 else 0
 
             if stuck > stuck_max or info['distance'] > stuck_point + train_length:
                 break
 
-        fitnesses.append(fitness)
+        # print("STUCKPOINT : " + str(stuck_point) + " Fitness : " + str(info['distance'] - stuck_point))
+        fitnesses.append(info['distance'] - stuck_point)
 
         ENV.close()
 
