@@ -1,3 +1,4 @@
+--This script will create save states as you play through the level
 emu.speedmode("normal") -- Set the speed of the emulator
 
 -- ===========================
@@ -30,6 +31,7 @@ running_thread = 0;         -- To avoid 2 threads running at the same time
 target_world = nil;         -- The target world
 target_level = nil;         -- The target level
 target_area = nil;          -- The target area
+curr_x_position = 0;        -- Current x position
 
 --resets all variables back to defaults
 function reset_vars()
@@ -44,6 +46,7 @@ function reset_vars()
     target_world = nil;
     target_level = nil;
     target_area = nil;
+	curr_x_position = 0;     
 end;
 
 -- ===========================
@@ -53,13 +56,15 @@ addr_world = 0x075f;
 addr_level = 0x075c;
 addr_area = 0x0760;
 addr_time = 0x07f8;
+addr_curr_page = 0x6d;
+addr_curr_x = 0x86;
 
 -- ===========================
 --         Save State
 -- ===========================
 function save_state_to_file()
     local savestate_level = (target_world - 1) * 4 + (target_level - 1)
-    local savestate_object = savestate.create(save_directory .. "/" .. savestate_level .. "-0.fcs")
+    local savestate_object = savestate.create(save_directory .. "/" .. savestate_level .. "-" .. curr_x_position ..".fcs")
     savestate.save(savestate_object);
     savestate.persist(savestate_object);  
 end;
@@ -98,6 +103,11 @@ end
 -- get_time - Returns the time left (0 to 999)
 function get_time()
     return tonumber(readbyterange(addr_time, 3));
+end;
+
+-- get_x_position - Returns the current (horizontal) position
+function get_x_position()
+    return memory.readbyte(addr_curr_page) * 0x100 + memory.readbyte(addr_curr_x);
 end;
 
 -- check_if_started - Checks if the timer has started to decrease
@@ -182,7 +192,8 @@ end;
 -- ===========================
 --         Main function
 -- ===========================
-for i=1, #level_matrix, 1 do
+-- set level here
+i=1
     -- Reset local state
     reset_vars()
 
@@ -196,7 +207,8 @@ for i=1, #level_matrix, 1 do
         load_and_save_state()
     end;
 
-    -- Execute a reset
-    emu.softreset()
-end;
-os.exit();
+	while true do 
+		curr_x_position = get_x_position();
+		save_state_to_file();
+		emu.frameadvance();
+	end
