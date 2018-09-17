@@ -22,6 +22,7 @@ START_DISTANCE = 0
 END_DISTANCE = 0
 MAX_DISTANCE = 0
 SAVE_INTERVAL = 5
+EPISODES = 5
 ENV = None
 
 
@@ -47,38 +48,42 @@ def mkdir_p(directory):
 
 def evaluate(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
+    fitnesses = []
 
-    done = False
-    stuck = 0
-    stuck_max = 600
+    for e in range(EPISODES):
+        done = False
+        stuck = 0
+        stuck_max = 600
 
-    ENV.loadSaveStateFile(START_DISTANCE)
-    observation = ENV.reset()
+        ENV.loadSaveStateFile(START_DISTANCE)
+        observation = ENV.reset()
 
-    while not done:
-        # Get move from NN
-        outputs = neat_.clean_outputs(net.activate(observation.flatten()))
+        while not done:
+            # Get move from NN
+            outputs = neat_.clean_outputs(net.activate(observation.flatten()))
 
-        # Make move
-        observation, reward, done, info = ENV.step(outputs)
+            # Make move
+            observation, reward, done, info = ENV.step(outputs)
 
-        # Check if Mario is progressing in level
-        stuck += 1 if reward <= 0 else 0
+            # Check if Mario is progressing in level
+            stuck += 1 if reward <= 0 else 0
 
-        # Save out state progress
-        global MAX_DISTANCE
-        if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
-            MAX_DISTANCE = info['distance']
-            ENV.saveToStateFile()
+            # Save out state progress
+            global MAX_DISTANCE
+            if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
+                MAX_DISTANCE = info['distance']
+                ENV.saveToStateFile()
 
-        # TODO: Needs improvement, need to disable at end of level and when in a pipe.
-        # Also not sure what will happen with END_DISTANCE when in a pipe..
-        if stuck > stuck_max or info['distance'] > END_DISTANCE:
-            break
+            # TODO: Needs improvement, need to disable at end of level and when in a pipe.
+            # Also not sure what will happen with END_DISTANCE when in a pipe..
+            if stuck > stuck_max or info['distance'] > END_DISTANCE:
+                break
 
-    ENV.close()
+            fitnesses.append(info['distance'])
 
-    return neat_.calculate_fitness(info)
+        ENV.close()
+
+    return np.array(fitnesses).mean()
 
 
 def load_checkpoint(config):
@@ -130,6 +135,8 @@ def main():
                         help="The target distance Mario should start training from")
     parser.add_argument('--target-distance', type=int, default=1000,
                         help="The target distance Mario should achieve before closing")
+    parser.add_argument('--episodes', type=int, default=5,
+                        help="The number of episodes to run for each genome")
     args = parser.parse_args()
 
     # Setup logger
@@ -163,6 +170,9 @@ def main():
 
     global SAVE_INTERVAL
     SAVE_INTERVAL = 5
+
+    global EPISODES
+    EPISODES = args.episodes
 
     global ENV
     ENV = get_env()
