@@ -94,7 +94,7 @@ def evaluate(genome, config):
                 break
 
         # print("STUCKPOINT : " + str(stuck_point) + " Fitness : " + str(info['distance'] - stuck_point))
-        fitnesses.append(info['distance'] - stuck_point)
+        fitnesses.append(max(0, info['distance'] - stuck_point))
 
         ENV.close()
 
