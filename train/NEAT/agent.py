@@ -43,6 +43,29 @@ def mkdir_p(directory):
 #  NEAT TRAINING
 # -----------------------------------------------------------------------------
 
+def play_best(genome, config):
+    net = neat.nn.FeedForwardNetwork.create(genome, config)
+    stuck = 0
+    stuck_max = 600
+    done = False
+    observation = ENV.reset()
+
+    while not done:
+        outputs = neat_.clean_outputs(net.activate(observation.flatten()))
+
+        observation, reward, done, info = ENV.step(outputs)
+
+        # Check if Mario is progressing in level
+        stuck += 1 if reward <= 0 else 0
+
+        if stuck > stuck_max:
+            break
+
+    ENV.close()
+
+    return info['distance']
+
+
 def evaluate(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
     fitnesses = []
@@ -90,25 +113,6 @@ def load_checkpoint(config):
         return neat.Population(config)
 
 
-def play_best(config, play_best_file):
-    wrapper = SetPlayingMode('normal')
-    e = wrapper(ENV)
-
-    genome = pickle.load(open(play_best_file, 'rb'))
-
-    net = neat.nn.FeedForwardNetwork.create(genome, config)
-
-    done = False
-    observation = e.reset()
-
-    while not done:
-        action = neat_.clean_outputs(net.activate(observation.flatten()))
-
-        observation, reward, done, info = e.step(action)
-
-    return info['distance']
-
-
 def evolve(config, num_cores):
     pop = load_checkpoint(config)
     pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-"))
@@ -121,7 +125,7 @@ def evolve(config, num_cores):
     for gen in range(500):
         winner = pop.run(pe.evaluate, 1)
 
-        winner_distance = play_best(config, winner)
+        winner_distance = play_best(winner, config)
 
         with open('stats.csv', mode='a') as stats_file:
             stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -138,7 +142,7 @@ def main():
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
+    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/AllYouCanEat-SavePoints/",
                         help="The directory to pull and store states from")
     parser.add_argument('--session-path', type=str, default="/opt/train/NEAT/session/",
                         help="The directory to store output files within")
