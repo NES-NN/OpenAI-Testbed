@@ -45,6 +45,9 @@ def crossover(genome1, genome2):
     result_genome.nodes = nodes
     result_genome.connections = connections
 
+    # Set fitness to average of input genomes
+    result_genome.fitness = (genome1.fitness + genome2.fitness / 2)
+
     return result_genome
 
 
