@@ -42,8 +42,8 @@ def crossover(genome1, genome2):
             nodes[key] = ng1.crossover(ng2)
 
     result_genome = DefaultGenome(randint(10000, 99999))
-    result_genome.nodes = nodes
     result_genome.connections = connections
+    result_genome.nodes = nodes
 
     # Set fitness to average of input genomes
     result_genome.fitness = ((genome1.fitness + genome2.fitness) / 2)
