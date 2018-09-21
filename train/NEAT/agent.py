@@ -1,13 +1,14 @@
-import argparse
-import logging
-import pickle
-import neat
-import gym
-import numpy as np
 import os
-from ppaquette_gym_super_mario.wrappers import *
-from testbed.logging import visualize
+import gym
+import neat
+import pickle
+import logging
+import argparse
+from random import randint
+from neat.six_util import iteritems
+from neat.genome import DefaultGenome
 from testbed.training import neat as neat_
+from ppaquette_gym_super_mario.wrappers import *
 
 
 # -----------------------------------------------------------------------------
@@ -18,10 +19,8 @@ GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 STATE_DIR = None
 SESSION_DIR = None
 CHECKPOINTS_DIR = None
-START_DISTANCE = 0
-END_DISTANCE = 0
-MAX_DISTANCE = 0
 SAVE_INTERVAL = 5
+DRILL_LENGTH = 300
 ENV = None
 
 
@@ -52,7 +51,7 @@ def evaluate(genome, config):
     stuck = 0
     stuck_max = 600
 
-    ENV.loadSaveStateFile(START_DISTANCE)
+    ENV.loadSaveStateFile(STUCK_POINT)
     observation = ENV.reset()
 
     while not done:
@@ -65,15 +64,9 @@ def evaluate(genome, config):
         # Check if Mario is progressing in level
         stuck += 1 if reward <= 0 else 0
 
-        # Save out state progress
-        global MAX_DISTANCE
-        if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
-            MAX_DISTANCE = info['distance']
-            ENV.saveToStateFile()
-
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
         # Also not sure what will happen with END_DISTANCE when in a pipe..
-        if stuck > stuck_max or info['distance'] > END_DISTANCE:
+        if stuck > stuck_max or info['distance'] > STUCK_POINT+DRILL_LENGTH:
             break
 
     ENV.close()
@@ -91,29 +84,94 @@ def load_checkpoint(config):
         return neat.Population(config)
 
 
-def evolve(config, num_cores):
+def crossover(genome1, genome2):
+    """ Configure a new genome by crossover from two parent genomes. """
+    assert isinstance(genome1.fitness, (int, float))
+    assert isinstance(genome2.fitness, (int, float))
+    if genome1.fitness > genome2.fitness:
+        parent1, parent2 = genome1, genome2
+    else:
+        parent1, parent2 = genome2, genome1
+
+    connections = {}
+    nodes = {}
+
+    # Inherit connection genes
+    for key, cg1 in iteritems(parent1.connections):
+        cg2 = parent2.connections.get(key)
+        if cg2 is None:
+            # Excess or disjoint gene: copy from the fittest parent.
+            connections[key] = cg1.copy()
+        else:
+            # Homologous gene: combine genes from both parents.
+            connections[key] = cg1.crossover(cg2)
+
+    # Inherit node genes
+    parent1_set = parent1.nodes
+    parent2_set = parent2.nodes
+
+    for key, ng1 in iteritems(parent1_set):
+        ng2 = parent2_set.get(key)
+        assert key not in nodes
+        if ng2 is None:
+            # Extra gene: copy from the fittest parent
+            nodes[key] = ng1.copy()
+        else:
+            # Homologous gene: combine genes from both parents.
+            nodes[key] = ng1.crossover(ng2)
+
+    result_genome = DefaultGenome(randint(10000, 99999))
+    result_genome.connections = connections
+    result_genome.nodes = nodes
+
+    # Set fitness to average of input genomes
+    result_genome.fitness = ((genome1.fitness + genome2.fitness) / 2)
+
+    return result_genome
+
+
+def save_genome(fname, genome):
+    with open(SESSION_DIR + fname, 'wb') as output:
+        pickle.dump(genome, output, 1)
+
+
+def eval_stuck_point(config, num_cores):
+    # Create a new Network
     pop = load_checkpoint(config)
-    pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-"))
+    pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-" + str(STUCK_POINT) + "-"))
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
 
     pe = neat.ParallelEvaluator(num_cores, evaluate)
+    solved = False
 
-    while True:
-        winner = pop.run(pe.evaluate, 1)
+    while not solved:
+        best = pop.run(pe.evaluate, 1)
 
-        visualize.plot_stats(stats, ylog=False, view=False,
-            filename=SESSION_DIR + 'avg_fitness.svg')
-        visualize.plot_species(stats, view=False,
-            filename=SESSION_DIR + 'speciation.svg')
+        if stats.best_genome().fitness > STUCK_POINT+DRILL_LENGTH:
+            with open(SESSION_DIR + 'Best_{}.pkl'.format(len(STUCK_POINT)), 'wb') as output:
+                pickle.dump(best, output, 1)
+            return stats.best_genome()
 
-        # Save the best Genome from the last 5 gens.
-        with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
-            pickle.dump(winner, output, 1)
 
-        if stats.get_fitness_mean()[-1] >= END_DISTANCE:
-            break
+def evolve(config, num_cores):
+    master = None
+    for sp in [530, 1320, 1600, 2204, 2800]:
+        # I don't like using a global for this, would prefer to pass the value...
+        global STUCK_POINT
+        STUCK_POINT = sp
+
+        # If its the first stuck point, set its best to master and move to the next point
+        if master is None:
+            master = eval_stuck_point(config, num_cores)
+        else:
+            sp_best = eval_stuck_point(config, num_cores)
+            master = crossover(master, sp_best)
+
+        save_genome('Master_{}.pkl'.format(len(sp)), master)
+
+    save_genome('SuperMario.pkl'.format(len(sp)), master)
 
 
 def main():
@@ -151,9 +209,6 @@ def main():
     global CHECKPOINTS_DIR
     CHECKPOINTS_DIR = SESSION_DIR + "checkpoints/"
     mkdir_p(CHECKPOINTS_DIR)
-
-    global START_DISTANCE
-    START_DISTANCE = args.input_distance
 
     global END_DISTANCE
     END_DISTANCE = args.target_distance

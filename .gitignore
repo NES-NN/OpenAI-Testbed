@@ -19,3 +19,7 @@ build/*
 # Default training session results directory
 train/NEAT/session/
 train/NEAT/states/
+
+*.pkl
+
+*.csv
