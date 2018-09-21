@@ -74,16 +74,6 @@ def evaluate(genome, config):
     return neat_.calculate_fitness(info)
 
 
-def load_checkpoint(config):
-    try:
-        checkpoint = max([x.split("-")[-1] for x in os.listdir(CHECKPOINTS_DIR) if x.startswith("neat-checkpoint-")])
-        print("Found checkpoint at gen : " + str(checkpoint) + "... Loading...")
-        return neat.Checkpointer.restore_checkpoint(CHECKPOINTS_DIR + "neat-checkpoint-" + checkpoint)
-    except Exception as e:
-        print("No saved session found, creating new population")
-        return neat.Population(config)
-
-
 def crossover(genome1, genome2):
     """ Configure a new genome by crossover from two parent genomes. """
     assert isinstance(genome1.fitness, (int, float))
@@ -137,21 +127,19 @@ def save_genome(fname, genome):
 
 def eval_stuck_point(config, num_cores):
     # Create a new Network
-    pop = load_checkpoint(config)
+    pop = neat.Population(config)
     pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-" + str(STUCK_POINT) + "-"))
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
 
     pe = neat.ParallelEvaluator(num_cores, evaluate)
-    solved = False
 
-    while not solved:
+    while True:
         best = pop.run(pe.evaluate, 1)
 
         if stats.best_genome().fitness > STUCK_POINT+DRILL_LENGTH:
-            with open(SESSION_DIR + 'Best_{}.pkl'.format(len(STUCK_POINT)), 'wb') as output:
-                pickle.dump(best, output, 1)
+            save_genome('Best_{:d}.pkl'.format(STUCK_POINT), best)
             return stats.best_genome()
 
 
@@ -169,9 +157,9 @@ def evolve(config, num_cores):
             sp_best = eval_stuck_point(config, num_cores)
             master = crossover(master, sp_best)
 
-        save_genome('Master_{}.pkl'.format(len(sp)), master)
+        save_genome('Master_{:d}.pkl'.format(sp), master)
 
-    save_genome('SuperMario.pkl'.format(len(sp)), master)
+    save_genome('SuperMario.pkl', master)
 
 
 def main():
