@@ -20,7 +20,8 @@ STATE_DIR = None
 SESSION_DIR = None
 CHECKPOINTS_DIR = None
 SAVE_INTERVAL = 5
-DRILL_LENGTH = 300
+DRILL_LENGTH = 350
+PASS_LENGTH = DRILL_LENGTH - 100
 ENV = None
 
 
@@ -137,8 +138,7 @@ def eval_stuck_point(config, num_cores):
 
     while True:
         best = pop.run(pe.evaluate, 1)
-
-        if stats.best_genome().fitness > STUCK_POINT+DRILL_LENGTH:
+        if stats.get_fitness_mean()[-1] >= PASS_LENGTH:
             save_genome('Best_{:d}.pkl'.format(STUCK_POINT), best)
             return stats.best_genome()
 
