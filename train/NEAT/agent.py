@@ -138,7 +138,7 @@ def eval_stuck_point(config, num_cores):
 
     while True:
         best = pop.run(pe.evaluate, 1)
-        if stats.get_fitness_mean()[-1] >= PASS_LENGTH:
+        if stats.get_fitness_mean()[-1] >= STUCK_POINT+PASS_LENGTH:
             save_genome('Best_{:d}.pkl'.format(STUCK_POINT), best)
             return stats.best_genome()
 
