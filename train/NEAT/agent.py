@@ -1,9 +1,11 @@
 import os
 import gym
+import csv
 import neat
 import pickle
 import logging
 import argparse
+import numpy as np
 from random import randint
 from neat.six_util import iteritems
 from neat.genome import DefaultGenome
@@ -126,6 +128,18 @@ def save_genome(fname, genome):
         pickle.dump(genome, output, 1)
 
 
+def log(stats):
+    generation = len(stats.most_fit_genomes)
+    best_fitness = [c.fitness for c in stats.most_fit_genomes]
+    avg_fitness = np.array(stats.get_fitness_mean())
+    stdev_fitness = np.array(stats.get_fitness_stdev())
+
+    with open(str(STUCK_POINT) + '_stats.csv', mode='a') as stats_file:
+        stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
+
+
 def eval_stuck_point(config, num_cores):
     # Create a new Network
     pop = neat.Population(config)
@@ -138,6 +152,7 @@ def eval_stuck_point(config, num_cores):
 
     while True:
         best = pop.run(pe.evaluate, 1)
+        log(stats)
         if stats.get_fitness_mean()[-1] >= STUCK_POINT+PASS_LENGTH:
             save_genome('Best_{:d}.pkl'.format(STUCK_POINT), best)
             return stats.best_genome()
