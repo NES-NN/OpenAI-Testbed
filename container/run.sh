@@ -69,9 +69,9 @@ launch_wooey() {
     (cd /opt/wooey/OpenAI && celery -A OpenAI worker -c 1 --beat -l info &)
     python ${wooey_manage} runserver 0.0.0.0:8000 &
     python ${wooey_manage} addscript /opt/train/
-    python3 ${wooey_manage} addscript /opt/train/NEAT/Train.py
+    python3 ${wooey_manage} addscript /opt/train/NEAT/agent.py
+    python3 ${wooey_manage} addscript /opt/train/NEAT/evolve.py
     python3 ${wooey_manage} addscript /opt/train/Random/Train.py
-    python3 ${wooey_manage} addscript /opt/train/stateSaving/Train.py
 }
 
 run_vnc_server() {
