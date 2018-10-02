@@ -4,10 +4,22 @@ import csv
 import neat
 import pickle
 import argparse
+import logging
 import numpy as np
 from testbed.logging import visualize
 from testbed.training import neat as neat_
 from ppaquette_gym_super_mario.wrappers import *
+
+
+# -----------------------------------------------------------------------------
+#  HELPERS
+# -----------------------------------------------------------------------------
+
+
+def mkdir_p(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
 
 # -----------------------------------------------------------------------------
 #  NEAT TRAINING
@@ -65,9 +77,8 @@ def log(stats):
     avg_fitness = np.array(stats.get_fitness_mean())
     stdev_fitness = np.array(stats.get_fitness_stdev())
 
-    with open('stats.csv', mode='a') as stats_file:
+    with open(SESSION_DIR + 'stats.csv', mode='a') as stats_file:
         stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
         stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
 
 
@@ -93,7 +104,7 @@ def run(config, num_cores):
         log(stats)
 
         # Save the best Genome from the last 5 gens.
-        with open(SESSION_DIR + 'Best/{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
+        with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
 
 
