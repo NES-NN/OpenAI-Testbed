@@ -1,5 +1,6 @@
 import os
 import sys
+import csv
 import neat
 import pickle
 import argparse
@@ -19,7 +20,7 @@ def eval_genome(genome, config):
     info = {}
 
 
-    for i in range(1, 32):
+    for i in range(0, 32):
         observation = ENV_ARR[i].reset()
         done = False
         stuck = 0
@@ -33,10 +34,6 @@ def eval_genome(genome, config):
 
             # Check if Mario is progressing in level
             stuck += 1 if reward <= 0 else 0
-
-            if info['distance'] > MAX_DISTANCE[i] and info['distance'] % SAVE_INTERVAL == 0:
-                MAX_DISTANCE[i] = info['distance']
-                ENV_ARR[i].saveToStateFile()
 
             # TODO: Needs improvement, need to disable at end of level and when in a pipe.
             if stuck > stuck_max:
@@ -64,10 +61,21 @@ def load_checkpoint(config):
         return neat.Population(config)
 
 
+def log(stats):
+    generation = len(stats.most_fit_genomes)
+    best_fitness = [c.fitness for c in stats.most_fit_genomes]
+    avg_fitness = np.array(stats.get_fitness_mean())
+    stdev_fitness = np.array(stats.get_fitness_stdev())
+
+    with open('stats.csv', mode='a') as stats_file:
+        stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
+
+
 def run(config, num_cores):
     pop = load_checkpoint(config)
 
-    # Checkpoint every 5 generations or 10 min.
     pop.add_reporter(neat.Checkpointer(1, 600, SESSION_DIR + "checkpoints/neat-checkpoint-"))
 
     pop.add_reporter(neat.StdOutReporter(True))
@@ -76,13 +84,15 @@ def run(config, num_cores):
 
     pe = neat.ParallelEvaluator(num_cores, eval_genome)
 
-    while True:
+    for gen in range(500):
         winner = pop.run(pe.evaluate, 1)
 
         visualize.plot_stats(stats, ylog=False, view=False,
                              filename=SESSION_DIR + 'avg_fitness.svg')
         visualize.plot_species(stats, view=False,
                                filename=SESSION_DIR + 'speciation.svg')
+
+        log(stats)
 
         # Save the best Genome from the last 5 gens.
         with open(SESSION_DIR + 'Best/{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
@@ -106,9 +116,6 @@ def main():
 
     global ENV_ARR
     ENV_ARR = neat_.generate_env_arr(SESSION_DIR + "States/")
-
-    global MAX_DISTANCE
-    MAX_DISTANCE = np.ones(32)
 
     global SAVE_INTERVAL
     SAVE_INTERVAL = 5

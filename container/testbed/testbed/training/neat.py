@@ -52,16 +52,20 @@ def get_env(gym_name, session_dir):
     return env
 
 
+def get_env_no_save_state(gym_name):
+    env = gym.make(gym_name)
+    return env
+
+
 def generate_env_arr(session_dir, start=0, end=32):
     env = []
     for i in range(start, end):
         env.append(
-            get_env(
+            get_env_no_save_state(
                 'ppaquette/SavingSuperMarioBros-{:d}-{:d}-Tiles-v0'.format(
                     int((i / 4) + 1),
                     int((i % 4) + 1)
-                ),
-                session_dir
+                )
             )
         )
     return env
