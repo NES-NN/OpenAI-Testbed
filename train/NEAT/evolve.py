@@ -50,13 +50,11 @@ def eval_genome(genome, config):
 
 # TODO: This works, but could be better... need to make a more 'elegant' version
 def load_checkpoint(config):
-    checkpoint_directory = SESSION_DIR + "checkpoints/"
     try:
-        # Check if a checkpoint exists
-        checkpoint = max([x.split("-")[-1] for x in os.listdir(checkpoint_directory) if x.startswith("neat-checkpoint-")])
-        print ("Found checkpoint at gen :" + str(checkpoint) + "... Loading...")
-        return neat.Checkpointer.restore_checkpoint(checkpoint_directory + "neat-checkpoint-" + checkpoint)
-    except Exception:
+        checkpoint = max([x.split("-")[-1] for x in os.listdir(CHECKPOINTS_DIR) if x.startswith("neat-checkpoint-")])
+        print("Found checkpoint at gen : " + str(checkpoint) + "... Loading...")
+        return neat.Checkpointer.restore_checkpoint(CHECKPOINTS_DIR + "neat-checkpoint-" + checkpoint)
+    except Exception as e:
         print("No saved session found, creating new population")
         return neat.Population(config)
 
@@ -76,7 +74,7 @@ def log(stats):
 def run(config, num_cores):
     pop = load_checkpoint(config)
 
-    pop.add_reporter(neat.Checkpointer(1, 600, SESSION_DIR + "checkpoints/neat-checkpoint-"))
+    pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-"))
 
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -101,27 +99,43 @@ def run(config, num_cores):
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Trainer')
-    parser.add_argument('--config-file', type=str, default="config-feedforward",
+    parser.add_argument('--config-path', type=str, default="/opt/train/NEAT/config-feedforward",
                         help="The path to the NEAT parameter config file to use")
-    parser.add_argument('--session', type=str, default="session",
-                        help="Where to put states and checkpoints")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
+    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
+                        help="The directory to pull and store states from")
+    parser.add_argument('--session-path', type=str, default="/opt/train/NEAT/session/",
+                        help="The directory to store output files within")
     parser.add_argument('--display', type=str, default=":1",
                         help="The display to bind to to allow FCEUX to launch")
     args = parser.parse_args()
 
+    # Setup logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Load Config
+    config = neat_.load_config_with_defaults(args.config_path)
+
+    # Setup globals
+    global STATE_DIR
+    STATE_DIR = args.state_path
+    mkdir_p(STATE_DIR)
+
     global SESSION_DIR
-    SESSION_DIR = os.path.abspath(os.path.dirname(sys.argv[0])) + "/" + args.session + "/"
+    SESSION_DIR = args.session_path
+    mkdir_p(SESSION_DIR)
+
+    global CHECKPOINTS_DIR
+    CHECKPOINTS_DIR = SESSION_DIR + "checkpoints/"
+    mkdir_p(CHECKPOINTS_DIR)
 
     global ENV_ARR
-    ENV_ARR = neat_.generate_env_arr(SESSION_DIR + "States/")
+    ENV_ARR = neat_.generate_env_arr(STATE_DIR)
 
     global SAVE_INTERVAL
     SAVE_INTERVAL = 5
-
-    # Load the NEAT config file
-    config = neat_.load_config_with_defaults(SESSION_DIR + args.config_file)
 
     # Ensure the display variable is bound
     os.environ["DISPLAY"] = args.display

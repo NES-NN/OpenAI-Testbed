@@ -136,13 +136,13 @@ def evolve(config, num_cores):
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
-    parser.add_argument('--config-path', type=str, default="/opt/train/NEAT/config-feedforward",
+    parser.add_argument('--config-path', type=str, default="/opt/train/Experiment_2/config-feedforward",
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/AllYouCanEat-SavePoints/",
+    parser.add_argument('--state-path', type=str, default="/opt/train/Experiment_2/AllYouCanEat-SavePoints/",
                         help="The directory to pull and store states from")
-    parser.add_argument('--session-path', type=str, default="/opt/train/NEAT/session/",
+    parser.add_argument('--session-path', type=str, default="/opt/train/Experiment_2/session/",
                         help="The directory to store output files within")
 
     args = parser.parse_args()
