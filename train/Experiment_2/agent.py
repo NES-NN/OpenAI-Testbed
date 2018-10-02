@@ -125,9 +125,8 @@ def evolve(config, num_cores):
 
         winner_distance = play_best(winner, config)
 
-        with open('stats.csv', mode='a') as stats_file:
+        with open(SESSION_DIR + 'stats.csv', mode='a') as stats_file:
             stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
             stats_writer.writerow([gen, winner_distance])
 
         with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
@@ -136,7 +135,7 @@ def evolve(config, num_cores):
 
 def main():
     parser = argparse.ArgumentParser(description='Mario NEAT Agent Trainer')
-    parser.add_argument('--config-path', type=str, default="/opt/train/Experiment_2/config-feedforward",
+    parser.add_argument('--config-path', type=str, default="/opt/train/NEAT/config-feedforward",
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
