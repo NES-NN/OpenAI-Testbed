@@ -5,6 +5,7 @@ import neat
 import gym
 import numpy as np
 import os
+import csv
 from ppaquette_gym_super_mario.wrappers import *
 from testbed.logging import visualize
 from testbed.training import neat as neat_
@@ -18,9 +19,6 @@ GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 STATE_DIR = None
 SESSION_DIR = None
 CHECKPOINTS_DIR = None
-START_DISTANCE = 0
-END_DISTANCE = 0
-MAX_DISTANCE = 0
 SAVE_INTERVAL = 5
 ENV = None
 
@@ -45,40 +43,62 @@ def mkdir_p(directory):
 #  NEAT TRAINING
 # -----------------------------------------------------------------------------
 
-def evaluate(genome, config):
+def play_best(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
-
-    done = False
     stuck = 0
     stuck_max = 600
-
-    ENV.loadSaveStateFile(START_DISTANCE)
+    done = False
     observation = ENV.reset()
 
     while not done:
-        # Get move from NN
         outputs = neat_.clean_outputs(net.activate(observation.flatten()))
 
-        # Make move
         observation, reward, done, info = ENV.step(outputs)
 
         # Check if Mario is progressing in level
         stuck += 1 if reward <= 0 else 0
 
-        # Save out state progress
-        global MAX_DISTANCE
-        if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
-            MAX_DISTANCE = info['distance']
-            ENV.saveToStateFile()
-
-        # TODO: Needs improvement, need to disable at end of level and when in a pipe.
-        # Also not sure what will happen with END_DISTANCE when in a pipe..
-        if stuck > stuck_max or info['distance'] > END_DISTANCE:
+        if stuck > stuck_max:
             break
 
     ENV.close()
 
-    return neat_.calculate_fitness(info)
+    return info['distance']
+
+
+def evaluate(genome, config):
+    net = neat.nn.FeedForwardNetwork.create(genome, config)
+    fitnesses = []
+
+    train_length = 300
+
+    for stuck_point in [530, 1320, 1600, 2204, 2800]:
+        done = False
+        stuck = 0
+        stuck_max = 600
+        ENV.loadSaveStateFile(stuck_point)
+        observation = ENV.reset()
+        info = {}
+
+        while not done:
+            # Get move from NN
+            outputs = neat_.clean_outputs(net.activate(observation.flatten()))
+
+            # Make move
+            observation, reward, done, info = ENV.step(outputs)
+
+            # Check if Mario is progressing in level
+            stuck += 1 if reward <= 0 else 0
+
+            if stuck > stuck_max or info['distance'] > stuck_point + train_length:
+                break
+
+        # print("STUCKPOINT : " + str(stuck_point) + " Fitness : " + str(info['distance'] - stuck_point))
+        fitnesses.append(max(0, info['distance'] - stuck_point))
+
+        ENV.close()
+
+    return np.array(fitnesses).mean()
 
 
 def load_checkpoint(config):
@@ -100,20 +120,18 @@ def evolve(config, num_cores):
 
     pe = neat.ParallelEvaluator(num_cores, evaluate)
 
-    while True:
+    for gen in range(500):
         winner = pop.run(pe.evaluate, 1)
 
-        visualize.plot_stats(stats, ylog=False, view=False,
-            filename=SESSION_DIR + 'avg_fitness.svg')
-        visualize.plot_species(stats, view=False,
-            filename=SESSION_DIR + 'speciation.svg')
+        winner_distance = play_best(winner, config)
 
-        # Save the best Genome from the last 5 gens.
+        with open('stats.csv', mode='a') as stats_file:
+            stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            stats_writer.writerow([gen, winner_distance])
+
         with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
-
-        if stats.get_fitness_mean()[-1] >= END_DISTANCE:
-            break
 
 
 def main():
@@ -122,14 +140,11 @@ def main():
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
+    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/AllYouCanEat-SavePoints/",
                         help="The directory to pull and store states from")
     parser.add_argument('--session-path', type=str, default="/opt/train/NEAT/session/",
                         help="The directory to store output files within")
-    parser.add_argument('--input-distance', type=int, default=40,
-                        help="The target distance Mario should start training from")
-    parser.add_argument('--target-distance', type=int, default=1000,
-                        help="The target distance Mario should achieve before closing")
+
     args = parser.parse_args()
 
     # Setup logger
@@ -151,18 +166,6 @@ def main():
     global CHECKPOINTS_DIR
     CHECKPOINTS_DIR = SESSION_DIR + "checkpoints/"
     mkdir_p(CHECKPOINTS_DIR)
-
-    global START_DISTANCE
-    START_DISTANCE = args.input_distance
-
-    global END_DISTANCE
-    END_DISTANCE = args.target_distance
-
-    global MAX_DISTANCE
-    MAX_DISTANCE = 0
-
-    global SAVE_INTERVAL
-    SAVE_INTERVAL = 5
 
     global ENV
     ENV = get_env()
