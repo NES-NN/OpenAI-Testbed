@@ -95,7 +95,7 @@ def run(config, num_cores):
         log(stats)
 
         # Save the best Genome from the last 5 gens.
-        with open(SESSION_DIR + 'Best/{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
+        with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
             pickle.dump(winner, output, 1)
 
 
