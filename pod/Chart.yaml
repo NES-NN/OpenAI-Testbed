@@ -8,4 +8,4 @@ spec:
     image: openai/smb:latest
     ports:
     - containerPort: 5900
-	- containerPort: 8000
+    - containerPort: 8000
