@@ -8,6 +8,6 @@ spec:
     image: openai/smb:latest
     ports:
     - containerPort: 5900
-      name:vnc
+      name: vnc
     - containerPort: 8000
-      name:wooey
+      name: wooey
