@@ -1,0 +1,16 @@
+kind: Deployment
+metadata:
+  name: exp1
+spec:
+  replicas: 1
+  template:
+  containers:
+    spec:
+	  containers:
+      - name: openai_smb
+        image: openai/smb:latest
+        ports:
+        - containerPort: 5900
+          name: vnc
+        - containerPort: 8000
+          name: wooey
