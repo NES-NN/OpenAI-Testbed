@@ -4,9 +4,9 @@ metadata:
   name: exp1
 spec:
   replicas: 1
-  template:  
+  template:
     spec:
-	  containers:
+      containers:
       - name: openai_smb
         image: openai/smb:latest
         ports:
