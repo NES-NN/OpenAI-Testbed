@@ -10,7 +10,7 @@ spec:
         app: exp1
     spec:
       containers:
-      - name: openai_smb
+      - name: openai-smb
         image: openai/smb:latest
         ports:
         - containerPort: 5900
