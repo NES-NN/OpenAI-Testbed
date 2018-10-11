@@ -4,10 +4,12 @@ metadata:
 spec:
   replicas: 1
   template:
-  containers:
+    metadata:
+      labels:
+        app: exp1
     spec:
       containers:
-      - name: openai_smb
+      - name: openai-smb
         image: openaitestbedaf41.azurecr.io/openaitestbed:latest
         ports:
         - containerPort: 5900
