@@ -1,17 +1,14 @@
-apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: exp1
 spec:
   replicas: 1
   template:
-    metadata:
-      labels:
-        app: exp1
+  containers:
     spec:
-      containers:
-      - name: openai-smb
-        image: openai/smb:latest
+	  containers:
+      - name: openai_smb
+        image: openaitestbedaf41.azurecr.io/openaitestbed:18
         ports:
         - containerPort: 5900
           name: vnc
