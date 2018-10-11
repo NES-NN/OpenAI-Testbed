@@ -8,7 +8,7 @@ spec:
     spec:
 	  containers:
       - name: openai_smb
-        image: openaitestbedaf41.azurecr.io/openaitestbed:18
+        image: openaitestbedaf41.azurecr.io/openaitestbed:latest
         ports:
         - containerPort: 5900
           name: vnc
