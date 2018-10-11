@@ -6,7 +6,7 @@ spec:
   template:
   containers:
     spec:
-	  containers:
+      containers:
       - name: openai_smb
         image: openaitestbedaf41.azurecr.io/openaitestbed:latest
         ports:
