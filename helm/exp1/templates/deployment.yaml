@@ -1,3 +1,4 @@
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: exp1
@@ -10,9 +11,9 @@ spec:
     spec:
       containers:
       - name: openai-smb
-        image: openaitestbedaf41.azurecr.io/openaitestbed:latest
+        image: "openaitestbedaf41.azurecr.io/openaitestbed:latest"
         ports:
-        - containerPort: 5900
-          name: vnc
-        - containerPort: 8000
-          name: wooey
+        - name: vnc
+		  containerPort: 5900
+        - name: wooey
+		  containerPort: 8000
