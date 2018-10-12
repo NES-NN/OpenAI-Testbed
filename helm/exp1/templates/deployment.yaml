@@ -14,6 +14,6 @@ spec:
         image: "openaitestbedaf41.azurecr.io/openaitestbed:latest"
         ports:
         - name: vnc
-		  containerPort: 5900
+          containerPort: 5900
         - name: wooey
-		  containerPort: 8000
+          containerPort: 8000
