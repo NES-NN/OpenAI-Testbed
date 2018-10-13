@@ -3,6 +3,7 @@ import logging
 import pickle
 import neat
 import gym
+import csv
 import numpy as np
 import os
 from ppaquette_gym_super_mario.wrappers import *
@@ -18,10 +19,9 @@ GYM_NAME = 'ppaquette/SavingSuperMarioBros-1-1-Tiles-v0'
 STATE_DIR = None
 SESSION_DIR = None
 CHECKPOINTS_DIR = None
-START_DISTANCE = 0
-END_DISTANCE = 0
-MAX_DISTANCE = 0
-SAVE_INTERVAL = 5
+STUCK_POINT = 0
+DRILL_LENGTH = 0
+PASS_LENGTH = 0
 ENV = None
 
 
@@ -52,7 +52,7 @@ def evaluate(genome, config):
     stuck = 0
     stuck_max = 600
 
-    ENV.loadSaveStateFile(START_DISTANCE)
+    ENV.loadSaveStateFile(STUCK_POINT)
     observation = ENV.reset()
 
     while not done:
@@ -65,15 +65,9 @@ def evaluate(genome, config):
         # Check if Mario is progressing in level
         stuck += 1 if reward <= 0 else 0
 
-        # Save out state progress
-        global MAX_DISTANCE
-        if info['distance'] > MAX_DISTANCE and info['distance'] % SAVE_INTERVAL == 0:
-            MAX_DISTANCE = info['distance']
-            ENV.saveToStateFile()
-
         # TODO: Needs improvement, need to disable at end of level and when in a pipe.
         # Also not sure what will happen with END_DISTANCE when in a pipe..
-        if stuck > stuck_max or info['distance'] > END_DISTANCE:
+        if stuck > stuck_max or info['distance'] > STUCK_POINT+DRILL_LENGTH:
             break
 
     ENV.close()
@@ -81,39 +75,51 @@ def evaluate(genome, config):
     return neat_.calculate_fitness(info)
 
 
-def load_checkpoint(config):
-    try:
-        checkpoint = max([x.split("-")[-1] for x in os.listdir(CHECKPOINTS_DIR) if x.startswith("neat-checkpoint-")])
-        print("Found checkpoint at gen : " + str(checkpoint) + "... Loading...")
-        return neat.Checkpointer.restore_checkpoint(CHECKPOINTS_DIR + "neat-checkpoint-" + checkpoint)
-    except Exception as e:
-        print("No saved session found, creating new population")
-        return neat.Population(config)
+def log(stats):
+    generation = len(stats.most_fit_genomes)
+    best_fitness = [c.fitness for c in stats.most_fit_genomes]
+    avg_fitness = np.array(stats.get_fitness_mean())
+    stdev_fitness = np.array(stats.get_fitness_stdev())
+
+    with open(str(STUCK_POINT) + '_stats.csv', mode='a') as stats_file:
+        stats_writer = csv.writer(stats_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+        stats_writer.writerow([generation, best_fitness[-1], avg_fitness[-1], stdev_fitness[-1]])
 
 
 def evolve(config, num_cores):
-    pop = load_checkpoint(config)
-    pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-"))
-    pop.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    pop.add_reporter(stats)
+    pop = neat.Population(config)
 
-    pe = neat.ParallelEvaluator(num_cores, evaluate)
+    for sp in [530, 1320, 1600, 2204, 2800]:
+        global STUCK_POINT
+        STUCK_POINT = sp
 
-    while True:
-        winner = pop.run(pe.evaluate, 1)
+        pop.add_reporter(neat.Checkpointer(1, 600, CHECKPOINTS_DIR + "neat-checkpoint-" + str(STUCK_POINT) + "-"))
+        pop.add_reporter(neat.StdOutReporter(True))
+        stats = neat.StatisticsReporter()
+        pop.add_reporter(stats)
 
-        visualize.plot_stats(stats, ylog=False, view=False,
-            filename=SESSION_DIR + 'avg_fitness.svg')
-        visualize.plot_species(stats, view=False,
-            filename=SESSION_DIR + 'speciation.svg')
+        pe = neat.ParallelEvaluator(num_cores, evaluate)
 
-        # Save the best Genome from the last 5 gens.
-        with open(SESSION_DIR + 'Best-{}.pkl'.format(len(stats.most_fit_genomes)), 'wb') as output:
-            pickle.dump(winner, output, 1)
+        while True:
+            winner = pop.run(pe.evaluate, 1)
 
-        if stats.get_fitness_mean()[-1] >= END_DISTANCE:
-            break
+            visualize.plot_stats(stats, ylog=False, view=False,
+                filename=SESSION_DIR + 'avg_fitness-' + str(STUCK_POINT) + '.svg')
+
+            visualize.plot_species(stats, view=False,
+                filename=SESSION_DIR + 'speciation-' + str(STUCK_POINT) + '.svg')
+
+            log(stats)
+
+            # Save the best Genome from the last 5 gens.
+            with open(SESSION_DIR + 'Best-{}-{}.pkl'.format(str(STUCK_POINT),
+                                                            len(stats.most_fit_genomes)), 'wb'
+                      ) as output:
+                pickle.dump(winner, output, 1)
+
+            if stats.get_fitness_mean()[-1] >= STUCK_POINT+PASS_LENGTH:
+                break
 
 
 def main():
@@ -152,17 +158,11 @@ def main():
     CHECKPOINTS_DIR = SESSION_DIR + "checkpoints/"
     mkdir_p(CHECKPOINTS_DIR)
 
-    global START_DISTANCE
-    START_DISTANCE = args.input_distance
+    global DRILL_LENGTH
+    DRILL_LENGTH = 350
 
-    global END_DISTANCE
-    END_DISTANCE = args.target_distance
-
-    global MAX_DISTANCE
-    MAX_DISTANCE = 0
-
-    global SAVE_INTERVAL
-    SAVE_INTERVAL = 5
+    global PASS_LENGTH
+    PASS_LENGTH = DRILL_LENGTH - 100
 
     global ENV
     ENV = get_env()
