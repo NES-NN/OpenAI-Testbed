@@ -1,0 +1,10 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: exp1-ingress
+  annotations:
+    http.port: "5900"
+spec:
+  backend:
+    serviceName: exp1
+    servicePort: 5900
