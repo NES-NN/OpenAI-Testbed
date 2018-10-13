@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: exp1-service
+spec:
+  selector:
+    app: exp1
+  ports:
+    - name: vnc
+      protocol: TCP
+      port: 5900
+      targetPort: 5900
+
+
+

@@ -6,5 +6,5 @@ metadata:
     http.port: "5900"
 spec:
   backend:
-    serviceName: exp1
+    serviceName: exp1-service
     servicePort: 5900
