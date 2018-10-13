@@ -17,3 +17,5 @@ spec:
           containerPort: 5900
         - name: wooey
           containerPort: 8000
+      imagePullSecrets:
+      - name: containerpass
