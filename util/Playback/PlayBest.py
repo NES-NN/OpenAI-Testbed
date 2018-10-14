@@ -38,10 +38,13 @@ def play_best(config, play_best_file):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
 
     done = False
-    observation = e.reset()
+    e.reset()
+
+    observation = e.step([0,0,0,0,0,0])
 
     while not done:
-        action = neat_.clean_outputs(net.activate(observation.flatten()))
+        action = neat_.clean_outputs(net.activate(observation[0].flatten()))
+
         print('Action taken by NN : [{} {} {} {} {} {}]'.format(
                 ('UP' if action[0] else ''),
                 ('Left' if action[1] else ''),
@@ -49,14 +52,15 @@ def play_best(config, play_best_file):
                 ('Down' if action[3] else ''),
                 ('A' if action[4] else ''),
                 ('B' if action[5] else '')))
-        e.step(action)
+
+        observation = e.step(action)
 
 
 def main():
     parser = argparse.ArgumentParser(description='Play the best player form a trained NEAT Network')
-    parser.add_argument('--config-file', type=str, required=True,
+    parser.add_argument('--config-file', type=str, default='config-feedforward',
                         help="The path to the NEAT parameter config file to use")
-    parser.add_argument('--play-best', type=str, required=True,
+    parser.add_argument('--play-best', type=str, default='Best.pkl',
                         help="The path to the pickle output from training to load the best network")
     args = parser.parse_args()
 
