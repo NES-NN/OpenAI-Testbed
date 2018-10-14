@@ -10,6 +10,10 @@ spec:
       protocol: TCP
       port: 5900
       targetPort: 5900
+    - name: wooey
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
 
 
 
