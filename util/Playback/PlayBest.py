@@ -61,7 +61,7 @@ def main():
     args = parser.parse_args()
 
     # Load Config
-    config = neat_.load_config_with_defaults(args.config_path)
+    config = neat_.load_config_with_defaults(args.config_file)
 
     global ENV
     ENV = get_env()
