@@ -128,9 +128,9 @@ def main():
                         help="The path to the NEAT parameter config file to use")
     parser.add_argument('--num-cores', type=int, default=1,
                         help="The number of cores on your computer for parallel execution")
-    parser.add_argument('--state-path', type=str, default="/opt/train/NEAT/states/",
+    parser.add_argument('--state-path', type=str, default="/opt/train/Experiment_4/states/",
                         help="The directory to pull and store states from")
-    parser.add_argument('--session-path', type=str, default="/opt/train/NEAT/session/",
+    parser.add_argument('--session-path', type=str, default="/opt/train/Experiment_4/session/",
                         help="The directory to store output files within")
     parser.add_argument('--input-distance', type=int, default=40,
                         help="The target distance Mario should start training from")
