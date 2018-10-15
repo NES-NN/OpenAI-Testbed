@@ -113,7 +113,7 @@ def evolve(config, num_cores):
 
             log(stats)
 
-            run_best = [c.fitness for c in stats.most_fit_genomes]
+            run_best = [c.fitness for c in stats.most_fit_genomes][-1]
 
             if current_best < run_best:
                 current_best = run_best
