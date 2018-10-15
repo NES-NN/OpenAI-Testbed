@@ -103,7 +103,7 @@ def evolve(config, num_cores):
         current_best = 0
 
         while True:
-            winner = pop.run(pe.evaluate, 25)
+            winner = pop.run(pe.evaluate, 1)
 
             visualize.plot_stats(stats, ylog=False, view=False,
                 filename=SESSION_DIR + 'avg_fitness-' + str(STUCK_POINT) + '.svg')
